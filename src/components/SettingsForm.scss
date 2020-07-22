@@ -6,10 +6,14 @@
 		display: flex;
 	}
 
-	label {
+	&__field {
 		display: flex;
 		flex-direction: column;
 		font-size: 12px;
+
+		&:not(:last-child) {
+			margin-right: 10px;
+		}
 	}
 
 	input {
@@ -18,5 +22,15 @@
 		padding: 5px;
 
 		width: 50px;
+	}
+
+	&__error {
+		color: #d83f3f;
+		margin-top: 4px;
+	}
+
+	button {
+		margin-top: 20px;
+		padding: 5px 8px;
 	}
 }

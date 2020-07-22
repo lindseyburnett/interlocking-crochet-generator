@@ -26,6 +26,7 @@ export default class PatternManager extends React.Component {
 		this.handleEraserAction = this.handleEraserAction.bind(this);
 		this.handleSettingsSubmit = this.handleSettingsSubmit.bind(this);
 		this.updateRowsCount = this.updateRowsCount.bind(this);
+		this.updateColsCount = this.updateColsCount.bind(this);
 	}
 
 	handlePencilAction(row, col) {
@@ -61,9 +62,15 @@ export default class PatternManager extends React.Component {
 		Object.keys(newValues).forEach(settingName => {
 			const settingValue = newValues[settingName];
 			const handlerFunc = {
-				"rows": this.updateRowsCount
+				"rows": this.updateRowsCount,
+				"cols": this.updateColsCount
 			}[settingName];
-			handlerFunc(settingValue);
+			
+			if(handlerFunc) {
+				handlerFunc(settingValue);
+			} else {
+				console.warn("Handler not found for setting name:", settingName);
+			}
 		});
 	}
 
@@ -77,6 +84,7 @@ export default class PatternManager extends React.Component {
 				newGrid = initializeDots(newGrid);
 			} else if(delta < 0) {
 				newGrid.length = newCount;
+				newGrid[newGrid.length-1].fill(false); // empty out bottom edge
 			}
 
 			return { grid: newGrid };
@@ -84,7 +92,28 @@ export default class PatternManager extends React.Component {
 	}
 
 	updateColsCount(newCount) {
-		// TODO
+		this.setState((state, props) => {
+			let newGrid = state.grid.slice();
+
+			const delta = newCount - newGrid[0].length;
+			if(delta > 0) {
+				for(let i = 0; i < newGrid.length; i++) {
+					const row = newGrid[i];
+					let rowDelta = delta;
+					while(rowDelta-- > 0) { row.push(false); }
+				}
+
+				newGrid = initializeDots(newGrid);
+			} else if(delta < 0) {
+				for(let i = 0; i < newGrid.length; i++) {
+					const row = newGrid[i];
+					row.length = newCount;
+					row[row.length-1] = false; // empty out right edge
+				}
+			}
+
+			return { grid: newGrid };
+		});
 	}
 
 	render() {
@@ -109,6 +138,8 @@ export default class PatternManager extends React.Component {
 						<TabPanel>
 							<SettingsForm
 								handleSubmit={this.handleSettingsSubmit}
+								initRows={this.props.initRows}
+								initCols={this.props.initCols}
 							/>
 						</TabPanel>
 					</Tabs>
