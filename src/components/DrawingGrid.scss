@@ -1,0 +1,12 @@
+.DrawingGrid {
+	display: flex;
+	flex-direction: column;
+
+	&__row {
+		display: flex;
+
+		&:not(:first-child) {
+			margin-top: -1px;
+		}
+	}
+}
