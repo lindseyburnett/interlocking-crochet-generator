@@ -21,14 +21,18 @@ export default function SettingsForm(props) {
 					const errors = {};
 					const rows = parseInt(values.rows);
 					const cols = parseInt(values.cols);
+					const squareSize = parseInt(values.squareSize);
 
 					if(rows < 3) errors.rows = "Must be at least 3";
 					else if(rows > 99) errors.rows = "Must be less than 100";
 					else if(rows % 2 === 0) errors.rows = "Must be odd";
 
 					if(cols < 3) errors.cols = "Must be at least 3";
-					else if(cols > 99) errors.cols = "Must be less than 100";
+					else if(cols > 99) errors.cols = "Must be 99 or less";
 					else if(cols % 2 === 0) errors.cols = "Must be odd";
+
+					if(squareSize < 5) errors.squareSize = "Must be at least 5";
+					else if(squareSize > 50) errors.squareSize = "Must be 50 or less";
 
 					return errors;
 				}}
@@ -54,11 +58,18 @@ export default function SettingsForm(props) {
 								step: "2"
 							}}
 						/>
+						<SettingsField name="squareSize" label="Square Size" fieldProps={{
+								type: "number",
+								min: "5",
+								max: "50"
+							}}
+						/>
 					</div>
 					<div className="SettingsForm__row">
 						<SettingsField name="showDetailedView" label="Detailed View" fieldProps={{ type: "checkbox" }} />
 						<SettingsField name="showGrid" label="Grid" fieldProps={{ type: "checkbox" }} />
 					</div>
+
 					<button type="submit">Apply</button>
 				</Form>
 			</Formik>

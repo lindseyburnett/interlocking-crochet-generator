@@ -1,4 +1,13 @@
 .Toolbar {
 	display: flex;
+	flex-direction: column;
 	padding: 15px 15px 0;
+
+	&__row {
+		display: flex;
+		
+		&:not(:last-child) {
+			margin-bottom: 10px;
+		}
+	}
 }

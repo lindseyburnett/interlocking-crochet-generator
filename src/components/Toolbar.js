@@ -3,6 +3,7 @@ import "./Toolbar.scss";
 import ToolbarButton from "./ToolbarButton";
 import pencilIcon from "../images/pencil.png";
 import eraserIcon from "../images/eraser.png";
+import newIcon from "../images/new.png";
 
 export const TOOLBAR_DATA = {
 	Pencil: {
@@ -17,8 +18,12 @@ export const TOOLBAR_DATA = {
 	}
 };
 
+const PASSIVE_TOOL_DATA = {
+	New: newIcon
+};
+
 export function Toolbar(props) {
-	const buttons = Object.keys(TOOLBAR_DATA).map(toolKey => {
+	const activeButtons = Object.keys(TOOLBAR_DATA).map(toolKey => {
 		const tool = TOOLBAR_DATA[toolKey];
 		return (
 			<ToolbarButton
@@ -26,14 +31,27 @@ export function Toolbar(props) {
 				name={toolKey}
 				image={tool.image}
 				isActive={toolKey === props.activeTool}
-				handleClick={props.handleClick}
+				handleClick={props.handleActiveClick}
+			/>
+		);
+	});
+
+	const passiveButtons = Object.keys(PASSIVE_TOOL_DATA).map(toolKey => {
+		const toolImage = PASSIVE_TOOL_DATA[toolKey];
+		return (
+			<ToolbarButton
+				key={toolKey}
+				name={toolKey}
+				image={toolImage}
+				handleClick={props.handlePassiveClick}
 			/>
 		);
 	});
 
 	return (
 		<div className="Toolbar">
-			{buttons}
+			<div className="Toolbar__row">{activeButtons}</div>
+			<div className="Toolbar__row">{passiveButtons}</div>
 		</div>
 	);
 }

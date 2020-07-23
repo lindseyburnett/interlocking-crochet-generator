@@ -6,6 +6,7 @@ import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import { isSquareDot } from "../utils/square-utils";
 
 export default class App extends React.Component {
   constructor(props) {
@@ -33,7 +34,8 @@ export default class App extends React.Component {
         showDetailedView: false,
         showGrid: false,
         bgColor: "#FFFFFF",
-        fgColor: "#B3B3B3"
+        fgColor: "#707070",
+        squareSize: 18
       }
     };
 
@@ -41,8 +43,10 @@ export default class App extends React.Component {
     this.updateToolStyles(TOOLBAR_DATA[defaultTool]);
     this.updateStyleVariable("--bg-color", this.state.settings.bgColor);
     this.updateStyleVariable("--fg-color", this.state.settings.fgColor);
+    this.updateStyleVariable("--square-size", this.state.settings.squareSize + "px");
 
-    this.handleToolbarClick = this.handleToolbarClick.bind(this);
+    this.handleActiveToolbarClick = this.handleActiveToolbarClick.bind(this);
+    this.handlePassiveToolbarClick = this.handlePassiveToolbarClick.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.handleSquareInteract = this.handleSquareInteract.bind(this);
@@ -60,9 +64,23 @@ export default class App extends React.Component {
     doc.style.setProperty("--tool-cursor-y", toolData.cursorY);
   }
 
-  handleToolbarClick(toolName) {
+  handleActiveToolbarClick(toolName) {
     this.setState({ activeTool: toolName });
     this.updateToolStyles(TOOLBAR_DATA[toolName]);
+  }
+
+  handlePassiveToolbarClick(toolName) {
+    this.setState((state, props) => {
+      let newGrid = state.grid.slice();
+
+      if(toolName === "New") {
+        if(window.confirm("Are you sure? Any unsaved work will be lost.")) {
+          newGrid = initializeDots(newGrid, true);
+        }        
+      }
+
+      return { grid: newGrid };
+    });
   }
 
   handleMouseDown() {
@@ -111,7 +129,8 @@ export default class App extends React.Component {
         "rows": this.updateRowsCount,
         "cols": this.updateColsCount,
         "bgColor": () => this.updateStyleVariable("--bg-color", settingValue),
-        "fgColor": () => this.updateStyleVariable("--fg-color", settingValue)
+        "fgColor": () => this.updateStyleVariable("--fg-color", settingValue),
+        "squareSize": () => this.updateStyleVariable("--square-size", settingValue + "px")
       }[settingName];
       
       if(handlerFunc) {
@@ -180,7 +199,8 @@ export default class App extends React.Component {
       >
         <Toolbar 
           activeTool={this.state.activeTool} 
-          handleClick={this.handleToolbarClick}
+          handleActiveClick={this.handleActiveToolbarClick}
+          handlePassiveClick={this.handlePassiveToolbarClick}
         />
         <div className="App__main">
           <div className="App__col">
@@ -216,14 +236,22 @@ export default class App extends React.Component {
 }
 
 // returns a new grid with dots set to true
-// all other values are unchanged
 // does not alter the original grid
-function initializeDots(grid) {
+// if resetLines is true, will wipe everything else, basically resetting to a blank state
+function initializeDots(grid, resetLines=false) {
   const newGrid = grid.slice();
 
-  for(let i = 1; i < grid.length; i += 2) {
-    for(let j = 1; j < grid[i].length; j+= 2) {
-      newGrid[i][j] = true;
+  if(resetLines) {
+    for(let i = 0; i < grid.length; i++) {
+      for(let j = 0; j < grid.length; j++) {
+        newGrid[i][j] = isSquareDot(i, j);
+      }
+    }
+  } else {
+    for(let i = 1; i < grid.length; i += 2) {
+      for(let j = 1; j < grid[i].length; j+= 2) {
+        newGrid[i][j] = true;
+      }
     }
   }
 

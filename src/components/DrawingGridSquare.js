@@ -11,6 +11,7 @@ export default function DrawingGridSquare(props) {
 	const isLine = isSquareLine(props.row, props.col);
 	const isValid = !props.isEdge && isLine;
 
+	// TODO: change to use SVGs instead so they scale with the square size
 	let contents = "";
 	if(!props.isEdge && props.showDetailedView) {
 		if(isDot) {
