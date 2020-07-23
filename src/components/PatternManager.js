@@ -6,6 +6,9 @@ import SettingsForm from "./SettingsForm";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 
+// TODO: need to pull grid state up into the App in order to do stuff like new and undo
+// PatternManager as a component will probably become redundant
+
 export default class PatternManager extends React.Component {
 	constructor(props) {
 		super(props);
@@ -26,7 +29,7 @@ export default class PatternManager extends React.Component {
 				rows: initRows,
 				cols: initCols,
 				showDetailedView: false,
-				showGrid: true,
+				showGrid: false,
 				bgColor: "#FFFFFF",
 				fgColor: "#B3B3B3"
 			}
