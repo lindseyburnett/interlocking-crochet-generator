@@ -1,12 +1,17 @@
 .DrawingGrid {
+	background-color: var(--bg-color);
 	display: flex;
 	flex-direction: column;
 
 	&__row {
 		display: flex;
+	}
 
-		&:not(:first-child) {
-			margin-top: -1px;
+	&--no-grid {
+		border: 1px solid #e4e4e4;
+
+		.DrawingGridSquare {
+			border: none;
 		}
 	}
 }

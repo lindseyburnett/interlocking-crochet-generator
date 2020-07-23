@@ -4,6 +4,10 @@
 
 	&__row {
 		display: flex;
+
+		&:not(:last-child) {
+			margin-bottom: 20px;
+		}
 	}
 
 	&__field {
@@ -18,10 +22,17 @@
 
 	input {
 		border: 1px solid black;
-		margin-top: 4px;
-		padding: 5px;
+		margin: 4px 0 0;
 
-		width: 50px;
+		&[type='number'] {
+			padding: 5px;
+			
+			width: 50px;
+		}
+
+		&[type='checkbox'] {
+			margin-left: 1px;
+		}
 	}
 
 	&__error {

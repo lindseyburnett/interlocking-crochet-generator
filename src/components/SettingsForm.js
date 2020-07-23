@@ -5,7 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 function SettingsField(props) {
 	return (
 		<label className="SettingsForm__field">
-			{props.name.charAt(0).toUpperCase() + props.name.slice(1)}
+			{props.label || props.name.charAt(0).toUpperCase() + props.name.slice(1)}
 			<Field {...props.fieldProps} name={props.name} />
 			<ErrorMessage name={props.name} component="div" className="SettingsForm__error" />
 		</label>
@@ -16,10 +16,7 @@ export default function SettingsForm(props) {
 	return (
 		<div className="SettingsForm">
 			<Formik
-				initialValues={{
-					rows: props.initRows,
-					cols: props.initCols
-				}}
+				initialValues={props.settings}
 				validate={values => {
 					const errors = {};
 					const rows = parseInt(values.rows);
@@ -39,20 +36,28 @@ export default function SettingsForm(props) {
 			>
 				<Form>
 					<div className="SettingsForm__row">
-						<SettingsField name="rows" fieldProps={{
+						<SettingsField name="bgColor" label="Background" fieldProps={{ type: "color" }} />
+						<SettingsField name="fgColor" label="Foreground" fieldProps={{ type: "color" }} />
+					</div>
+					<div className="SettingsForm__row">
+						<SettingsField name="rows" label="Rows" fieldProps={{
 								type: "number",
 								min: "3",
 								max: "99",
 								step: "2"
 							}}
 						/>
-						<SettingsField name="cols" fieldProps={{
+						<SettingsField name="cols" label="Columns" fieldProps={{
 								type: "number",
 								min: "3",
 								max: "99",
 								step: "2"
 							}}
 						/>
+					</div>
+					<div className="SettingsForm__row">
+						<SettingsField name="showDetailedView" label="Detailed View" fieldProps={{ type: "checkbox" }} />
+						<SettingsField name="showGrid" label="Grid" fieldProps={{ type: "checkbox" }} />
 					</div>
 					<button type="submit">Apply</button>
 				</Form>

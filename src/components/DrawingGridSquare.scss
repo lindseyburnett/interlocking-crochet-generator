@@ -1,6 +1,7 @@
 .DrawingGridSquare {
 	align-items: center;
-	border: 1px solid #e4e4e4;
+	border: 1px solid rgba(0, 0, 0, 0.4);
+	box-sizing: border-box;
 	cursor: var(--tool-cursor) var(--tool-cursor-x) var(--tool-cursor-y), default;
 	display: flex;
 	justify-content: center;
@@ -9,20 +10,28 @@
 	min-width: 20px;
 	min-height: 20px;
 
-	&:not(:first-child) {
-		margin-left: -1px;
-	}
+	&--valid:not(&--filled) {
+		position: relative;
 
-	&--valid {
-		background-color: #f7f7f7;
+		&:after {
+			content: "";
+			background-color: rgba(0, 0, 0, 0.1);
+
+			position: absolute;
+			top: 0;
+			left: 0;
+
+			width: 100%;
+			height: 100%;
+		}
 	}
 
 	&--filled {
-		background-color: pink;
+		background-color: var(--fg-color);
 	}
 
 	// dot or line when detailed view is turned on
 	span {
-		color: rgba(0, 0, 0, 0.15);
+		color: rgba(0, 0, 0, 0.2);
 	}
 }

@@ -4,7 +4,7 @@ import "./PatternDisplay.scss";
 export default function PatternDisplay(props) {
 	return (
 		<div className="PatternDisplay">
-			(Pattern will be displayed here)
+			(Pattern display coming soon!)
 		</div>
 	);
 }

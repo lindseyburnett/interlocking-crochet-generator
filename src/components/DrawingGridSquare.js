@@ -12,7 +12,7 @@ export default function DrawingGridSquare(props) {
 	const isValid = !props.isEdge && isLine;
 
 	let contents = "";
-	if(!props.isEdge && props.hasDetailedView) {
+	if(!props.isEdge && props.showDetailedView) {
 		if(isDot) {
 			contents = "•";
 		} else if(isLine) {
@@ -22,7 +22,7 @@ export default function DrawingGridSquare(props) {
 	}
 
 	let dynamicClasses = "";
-	dynamicClasses += isValid && props.hasDetailedView ? "DrawingGridSquare--valid " : "";
+	dynamicClasses += isValid && props.showDetailedView ? "DrawingGridSquare--valid " : "";
 	dynamicClasses += props.isFilled ? "DrawingGridSquare--filled " : "";
 
 	return (

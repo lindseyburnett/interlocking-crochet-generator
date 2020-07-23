@@ -10,16 +10,31 @@ export default class PatternManager extends React.Component {
 	constructor(props) {
 		super(props);
 
+		const initRows = 25;
+		const initCols = 25;
+
 		let rows = [];
-		for(let i = 0; i < props.initRows; i++) {
-			const newRow = Array(props.initCols).fill(false);
+		for(let i = 0; i < initRows; i++) {
+			const newRow = Array(initCols).fill(false);
 			rows.push(newRow);
 		}
 
 		rows = initializeDots(rows);
 		this.state = {
-			grid: rows
+			grid: rows,
+			settings: {
+				rows: initRows,
+				cols: initCols,
+				showDetailedView: false,
+				showGrid: true,
+				bgColor: "#FFFFFF",
+				fgColor: "#B3B3B3"
+			}
 		};
+
+		// set up default style values
+		this.updateStyleVariable("--bg-color", this.state.settings.bgColor);
+		this.updateStyleVariable("--fg-color", this.state.settings.fgColor);
 
 		this.handleSquareInteract = this.handleSquareInteract.bind(this);
 		this.handlePencilAction = this.handlePencilAction.bind(this);
@@ -59,19 +74,25 @@ export default class PatternManager extends React.Component {
 	}
 
 	handleSettingsSubmit(newValues) {
+
+		// look for anything that has a handler function associated with it
 		Object.keys(newValues).forEach(settingName => {
 			const settingValue = newValues[settingName];
 			const handlerFunc = {
 				"rows": this.updateRowsCount,
-				"cols": this.updateColsCount
+				"cols": this.updateColsCount,
+				"bgColor": () => this.updateStyleVariable("--bg-color", settingValue),
+				"fgColor": () => this.updateStyleVariable("--fg-color", settingValue)
 			}[settingName];
 			
 			if(handlerFunc) {
 				handlerFunc(settingValue);
-			} else {
-				console.warn("Handler not found for setting name:", settingName);
 			}
 		});
+
+		// once that's done, update everything in the state
+		// this both handles things that don't need a handler function, and preserves the current values in the form
+		this.setState({ settings: newValues });
 	}
 
 	updateRowsCount(newCount) {
@@ -116,14 +137,20 @@ export default class PatternManager extends React.Component {
 		});
 	}
 
+	updateStyleVariable(varName, newValue) {
+		document.documentElement.style.setProperty(varName, newValue);
+	}
+
 	render() {
 		return (
 			<div className="PatternManager">
 				<div className="PatternManager__col">
 					<DrawingGrid 
 						grid={this.state.grid}
-						hasDetailedView={this.props.hasDetailedView}
+						showDetailedView={this.state.settings.showDetailedView}
+						showGrid={this.state.settings.showGrid}
 						handleSquareInteract={this.handleSquareInteract}
+						mouseHeld={this.props.mouseHeld}
 					/>
 				</div>
 				<div className="PatternManager__col">
@@ -138,8 +165,7 @@ export default class PatternManager extends React.Component {
 						<TabPanel>
 							<SettingsForm
 								handleSubmit={this.handleSettingsSubmit}
-								initRows={this.props.initRows}
-								initCols={this.props.initCols}
+								settings={this.state.settings}
 							/>
 						</TabPanel>
 					</Tabs>
