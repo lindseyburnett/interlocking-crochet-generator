@@ -31,7 +31,11 @@ export default class App extends React.Component {
       activeTool: defaultTool,
       mouseHeld: false,
       grid: rows,
-      history: [JSON.parse(JSON.stringify(rows))], // deep clone (slice() doesn't clone row arrs)
+      history: [{
+        grid: deepClone(rows),
+        rows: initRows,
+        cols: initCols
+      }],
       currentHistoryIndex: 0,
       settings: {
         rows: initRows,
@@ -77,15 +81,37 @@ export default class App extends React.Component {
 
   handlePassiveToolbarClick(toolName) {
     this.setState((state, props) => {
-      let newGrid = state.grid.slice();
-
       if(toolName === "New") {
         if(window.confirm("Are you sure? Any unsaved work will be lost.")) {
-          newGrid = initializeDots(newGrid, true);
-        }        
-      }
+          return { grid: initializeDots(state.grid, true) };
+        }
+      } else if(toolName === "Undo") {
+        const currentIndex = state.currentHistoryIndex;
+        if(currentIndex === 0) return; // failsafe
 
-      return { grid: newGrid };
+        const prevHistory = state.history[currentIndex-1];
+        const newSettings = deepClone(state.settings);
+        newSettings.rows = prevHistory.rows;
+        newSettings.cols = prevHistory.cols;
+        return {
+          grid: deepClone(prevHistory.grid),
+          currentHistoryIndex: currentIndex - 1,
+          settings: newSettings
+        };
+      } else if(toolName === "Redo") {
+        const currentIndex = state.currentHistoryIndex;
+        if(currentIndex === state.history.length-1) return; // failsafe
+
+        const nextHistory = state.history[currentIndex+1];
+        const newSettings = deepClone(state.settings);
+        newSettings.rows = nextHistory.rows;
+        newSettings.cols = nextHistory.cols;
+        return {
+          grid: deepClone(nextHistory.grid),
+          currentHistoryIndex: currentIndex + 1,
+          settings: newSettings
+        };
+      }
     });
   }
 
@@ -99,21 +125,30 @@ export default class App extends React.Component {
 
   updateHistoryIfNeeded() {
     this.setState((state, props) => {
-      const currentGrid = state.grid.slice();
-      const latestHistory = state.history[state.currentHistoryIndex].slice();
+      const currentGrid = deepClone(state.grid);
+      const history = deepClone(state.history).slice(0, state.currentHistoryIndex+1);
+      const latestHistory = history[history.length-1].grid;
+
       if(JSON.stringify(currentGrid) === JSON.stringify(latestHistory)) {
-        console.log("not updating");
         return {};
       } else {
-        console.log("update!");
-        // TODO
+        history.push({
+          grid: currentGrid,
+          rows: state.settings.rows,
+          cols: state.settings.cols
+        });
+        if(history.length > 10) history.shift();
+        return { 
+          history: history,
+          currentHistoryIndex: history.length-1
+        };
       }      
     });
   }
 
   handlePencilAction(row, col) {
     this.setState((state, props) => {
-      const newGrid = state.grid.slice();
+      const newGrid = deepClone(state.grid);
       newGrid[row][col] = true;
 
       return { grid: newGrid };
@@ -122,7 +157,7 @@ export default class App extends React.Component {
 
   handleEraserAction(row, col) {
     this.setState((state, props) => {
-      const newGrid = state.grid.slice();
+      const newGrid = deepClone(state.grid);
       newGrid[row][col] = false;
 
       return { grid: newGrid };
@@ -160,12 +195,12 @@ export default class App extends React.Component {
 
     // once that's done, update everything in the state
     // this both handles things that don't need a handler function, and preserves the current values in the form
-    this.setState({ settings: newValues });
+    this.setState({ settings: newValues }, this.updateHistoryIfNeeded);
   }
 
   updateRowsCount(newCount) {
     this.setState((state, props) => {
-      let newGrid = state.grid.slice();
+      let newGrid = deepClone(state.grid);
       
       let delta = newCount - newGrid.length;
       if(delta > 0) {
@@ -182,7 +217,7 @@ export default class App extends React.Component {
 
   updateColsCount(newCount) {
     this.setState((state, props) => {
-      let newGrid = state.grid.slice();
+      let newGrid = deepClone(state.grid);
 
       const delta = newCount - newGrid[0].length;
       if(delta > 0) {
@@ -222,6 +257,8 @@ export default class App extends React.Component {
           activeTool={this.state.activeTool} 
           handleActiveClick={this.handleActiveToolbarClick}
           handlePassiveClick={this.handlePassiveToolbarClick}
+          canUndo={this.state.currentHistoryIndex > 0}
+          canRedo={this.state.currentHistoryIndex < this.state.history.length - 1}
         />
         <div className="App__main">
           <div className="App__col">
@@ -256,11 +293,15 @@ export default class App extends React.Component {
   }
 }
 
+function deepClone(arr) {
+  return JSON.parse(JSON.stringify(arr));
+}
+
 // returns a new grid with dots set to true
 // does not alter the original grid
 // if resetLines is true, will wipe everything else, basically resetting to a blank state
 function initializeDots(grid, resetLines=false) {
-  const newGrid = grid.slice();
+  const newGrid = deepClone(grid);
 
   if(resetLines) {
     for(let i = 0; i < grid.length; i++) {

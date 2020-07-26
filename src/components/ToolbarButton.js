@@ -5,7 +5,8 @@ export default function ToolbarButton(props) {
 	return (
 		<div 
 			className={`ToolbarButton ${props.isActive? "ToolbarButton--active" : ""}`}
-			onClick={() => props.handleClick(props.name)}
+			onClick={() => !props.disabled && props.handleClick(props.name)}
+			disabled={props.disabled}
 		>
 			<img src={props.image} alt={props.name} />
 		</div>

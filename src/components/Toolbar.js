@@ -4,6 +4,8 @@ import ToolbarButton from "./ToolbarButton";
 import pencilIcon from "../images/pencil.png";
 import eraserIcon from "../images/eraser.png";
 import newIcon from "../images/new.png";
+import undoIcon from "../images/undo.png";
+import redoIcon from "../images/redo.png";
 
 export const TOOLBAR_DATA = {
 	Pencil: {
@@ -18,11 +20,22 @@ export const TOOLBAR_DATA = {
 	}
 };
 
-const PASSIVE_TOOL_DATA = {
-	New: newIcon
-};
-
 export function Toolbar(props) {
+	const PASSIVE_TOOL_DATA = {
+		New: {
+			image: newIcon,
+			isDisabled: false
+		},
+		Undo: {
+			image: undoIcon,
+			isDisabled: !props.canUndo
+		},
+		Redo: {
+			image: redoIcon,
+			isDisabled: !props.canRedo
+		}
+	};
+
 	const activeButtons = Object.keys(TOOLBAR_DATA).map(toolKey => {
 		const tool = TOOLBAR_DATA[toolKey];
 		return (
@@ -37,13 +50,14 @@ export function Toolbar(props) {
 	});
 
 	const passiveButtons = Object.keys(PASSIVE_TOOL_DATA).map(toolKey => {
-		const toolImage = PASSIVE_TOOL_DATA[toolKey];
+		const tool = PASSIVE_TOOL_DATA[toolKey];
 		return (
 			<ToolbarButton
 				key={toolKey}
 				name={toolKey}
-				image={toolImage}
+				image={tool.image}
 				handleClick={props.handlePassiveClick}
+				disabled={tool.isDisabled}
 			/>
 		);
 	});

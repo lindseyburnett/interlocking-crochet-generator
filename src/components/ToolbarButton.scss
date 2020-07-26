@@ -5,12 +5,17 @@
 	cursor: pointer;
 	display: flex;
 	justify-content: center;
+	user-select: none;
 
 	width: 32px;
 	height: 32px;
 
 	&:not(:last-child) {
 		margin-right: 10px;
+	}
+
+	&[disabled] {
+		opacity: 0.5;
 	}
 
 	&--active {

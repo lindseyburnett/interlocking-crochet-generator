@@ -52,3 +52,8 @@
 - Collapse toggle for sidebar
 - Toolbar hotkeys
 - "About" modal with contact email for bug reports etc.
+- Refactor everything to use a 1D array for the grid if possible
+  - Lets you avoid having to deep clone the grid every time you need to update, for better efficiency
+  - Will likely need to pass numCols into most functions
+  - Might be easier to think about certain things if you turn the 1D array into a 2D array temporarily, then collapse it back before returning
+    - Although this might not be any more efficient than deep cloning...
