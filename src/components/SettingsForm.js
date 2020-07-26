@@ -1,16 +1,7 @@
 import React from "react";
 import "./SettingsForm.scss";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-
-function SettingsField(props) {
-	return (
-		<label className="SettingsForm__field">
-			{props.label || props.name.charAt(0).toUpperCase() + props.name.slice(1)}
-			<Field {...props.fieldProps} name={props.name} />
-			<ErrorMessage name={props.name} component="div" className="SettingsForm__error" />
-		</label>
-	);
-}
+import { Formik, Form } from "formik";
+import SettingsField from "./SettingsField";
 
 export default function SettingsForm(props) {
 	return (
@@ -31,7 +22,7 @@ export default function SettingsForm(props) {
 					else if(cols > 99) errors.cols = "Must be 99 or less";
 					else if(cols % 2 === 0) errors.cols = "Must be odd";
 
-					if(squareSize < 5) errors.squareSize = "Must be at least 5";
+					if(squareSize < 6) errors.squareSize = "Must be at least 6";
 					else if(squareSize > 50) errors.squareSize = "Must be 50 or less";
 
 					return errors;
@@ -60,7 +51,7 @@ export default function SettingsForm(props) {
 						/>
 						<SettingsField name="squareSize" label="Square Size" fieldProps={{
 								type: "number",
-								min: "5",
+								min: "6",
 								max: "50"
 							}}
 						/>

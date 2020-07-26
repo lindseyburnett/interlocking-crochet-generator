@@ -6,19 +6,27 @@ import {
 	getSquareLineDirection
 } from "../utils/square-utils";
 
+const dot = (
+	<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+	  <circle cx="50" cy="50" r="50"/>
+	</svg>
+);
+
+const vertLine = <div className="DrawingGridSquare__vert-line"></div>;
+const horizLine = <div className="DrawingGridSquare__horiz-line"></div>;
+
 export default function DrawingGridSquare(props) {
 	const isDot = isSquareDot(props.row, props.col);
 	const isLine = isSquareLine(props.row, props.col);
 	const isValid = !props.isEdge && isLine;
 
-	// TODO: change to use SVGs instead so they scale with the square size
 	let contents = "";
 	if(!props.isEdge && props.showDetailedView) {
 		if(isDot) {
-			contents = "•";
+			contents = dot;
 		} else if(isLine) {
 			const lineDirection = getSquareLineDirection(props.row, props.col);
-			contents = lineDirection === "horiz" ? "—" : "|";
+			contents = lineDirection === "horiz" ? horizLine : vertLine;
 		}
 	}
 
@@ -32,7 +40,7 @@ export default function DrawingGridSquare(props) {
 			onClick={() => props.onInteract(props.row, props.col, isValid)}
 			onMouseMove={() => props.onInteract(props.row, props.col, isValid && props.isMouseHeld)}
 		>
-			{!!contents && <span>{contents}</span>}
+			{!!contents && contents}
 		</div>
 	);
 }

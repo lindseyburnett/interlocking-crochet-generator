@@ -50,8 +50,8 @@ export function Toolbar(props) {
 
 	return (
 		<div className="Toolbar">
-			<div className="Toolbar__row">{activeButtons}</div>
-			<div className="Toolbar__row">{passiveButtons}</div>
+			<div className="Toolbar__section">{activeButtons}</div>
+			<div className="Toolbar__section">{passiveButtons}</div>
 		</div>
 	);
 }

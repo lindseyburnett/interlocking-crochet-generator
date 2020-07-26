@@ -24,10 +24,15 @@ export default class App extends React.Component {
 
     rows = initializeDots(rows);
 
+    // history is kept separate from current grid since drawing a line requires several updates to
+    // grid state in a row, but we only want one entry in the history
+    // (if you only drew one pixel at a time, grid could be replaced with the most recent history entry)
     this.state = {
       activeTool: defaultTool,
       mouseHeld: false,
       grid: rows,
+      history: [JSON.parse(JSON.stringify(rows))], // deep clone (slice() doesn't clone row arrs)
+      currentHistoryIndex: 0,
       settings: {
         rows: initRows,
         cols: initCols,
@@ -49,6 +54,7 @@ export default class App extends React.Component {
     this.handlePassiveToolbarClick = this.handlePassiveToolbarClick.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.updateHistoryIfNeeded = this.updateHistoryIfNeeded.bind(this);
     this.handleSquareInteract = this.handleSquareInteract.bind(this);
     this.handlePencilAction = this.handlePencilAction.bind(this);
     this.handleEraserAction = this.handleEraserAction.bind(this);
@@ -89,6 +95,20 @@ export default class App extends React.Component {
 
   handleMouseUp() {
     this.setState({ mouseHeld: false });
+  }
+
+  updateHistoryIfNeeded() {
+    this.setState((state, props) => {
+      const currentGrid = state.grid.slice();
+      const latestHistory = state.history[state.currentHistoryIndex].slice();
+      if(JSON.stringify(currentGrid) === JSON.stringify(latestHistory)) {
+        console.log("not updating");
+        return {};
+      } else {
+        console.log("update!");
+        // TODO
+      }      
+    });
   }
 
   handlePencilAction(row, col) {
@@ -196,6 +216,7 @@ export default class App extends React.Component {
         onMouseDown={this.handleMouseDown}
         onMouseUp={this.handleMouseUp}
         onMouseLeave={this.handleMouseUp}
+        onClick={this.updateHistoryIfNeeded}
       >
         <Toolbar 
           activeTool={this.state.activeTool} 
@@ -243,7 +264,7 @@ function initializeDots(grid, resetLines=false) {
 
   if(resetLines) {
     for(let i = 0; i < grid.length; i++) {
-      for(let j = 0; j < grid.length; j++) {
+      for(let j = 0; j < grid[i].length; j++) {
         newGrid[i][j] = isSquareDot(i, j);
       }
     }

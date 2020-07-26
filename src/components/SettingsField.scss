@@ -1,0 +1,31 @@
+.SettingsField {
+	display: flex;
+	flex-basis: 75px;
+	flex-direction: column;
+	font-size: 12px;
+
+	&:not(:last-child) {
+		margin-right: 10px;
+	}
+
+	input {
+		border: 1px solid black;
+		margin: 4px 0 0;
+
+		&[type='number'] {
+			padding: 5px;
+			
+			width: 50px;
+		}
+
+		&[type='checkbox'] {
+			margin-left: 1px;
+		}
+	}
+
+	&__error {
+		color: #d83f3f;
+		margin-top: 4px;
+	}
+}
+

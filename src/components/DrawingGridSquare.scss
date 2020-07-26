@@ -7,8 +7,12 @@
 	justify-content: center;
 	user-select: none;
 
+	position: relative;
+
 	min-width: var(--square-size);
 	min-height: var(--square-size);
+	max-width: var(--square-size);
+	max-height: var(--square-size);
 
 	&:not(:last-child) {
 		border-right: 1px solid rgba(0, 0, 0, 0.4);
@@ -21,8 +25,6 @@
 
 	// dark overlay when detailed view is turned on
 	&--valid:not(&--filled) {
-		position: relative;
-
 		&:after {
 			content: "";
 			background-color: rgba(0, 0, 0, 0.1);
@@ -36,8 +38,32 @@
 		}
 	}
 
-	// dot or line when detailed view is turned on
-	span {
-		color: rgba(0, 0, 0, 0.2);
+	&__vert-line {
+		background-color: rgba(0, 0, 0, 0.2);
+
+		position: absolute;
+		top: 2px;
+		left: calc(50% - 1px);
+
+		height: calc(100% - 4px);
+		width: 2px;
+	}
+
+	&__horiz-line {
+		background-color: rgba(0, 0, 0, 0.2);
+
+		position: absolute;
+		top: calc(50% - 1px);
+		left: 2px;
+
+		height: 2px;
+		width: calc(100% - 4px);
+	}
+
+	svg {
+		fill: rgba(0, 0, 0, 0.2);
+
+		height: 50%;
+		width: 50%;
 	}
 }
