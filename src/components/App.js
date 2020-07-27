@@ -82,7 +82,7 @@ export default class App extends React.Component {
   handlePassiveToolbarClick(toolName) {
     this.setState((state, props) => {
       if(toolName === "New") {
-        if(window.confirm("Are you sure? Any unsaved work will be lost.")) {
+        if(window.confirm("Are you sure?")) {
           return { grid: initializeDots(state.grid, true) };
         }
       } else if(toolName === "Undo") {
@@ -111,6 +111,39 @@ export default class App extends React.Component {
           currentHistoryIndex: currentIndex + 1,
           settings: newSettings
         };
+      } else if(toolName === "ShiftUp") {
+        // shifts are lossy because behavior is inconsistent near the edges
+        // if you have a "C" shape on the right edge, and shift right, the top and bottom bars will have to be lost
+        // at least by losing everything that goes off the edge, it's intentional rather than looking buggy
+        const newGrid = deepClone(state.grid);
+        newGrid.splice(1, 2);
+        const dotsRow = Array(state.settings.cols).fill(false);
+        for(let i = 1; i < dotsRow.length; i += 2) { dotsRow[i] = true; }
+        newGrid.splice(newGrid.length-1, 0, Array(state.settings.cols).fill(false), dotsRow);
+        return { grid: newGrid };
+      } else if(toolName === "ShiftDown") {
+        const newGrid = deepClone(state.grid);
+        newGrid.splice(newGrid.length-3, 2);
+        const dotsRow = Array(state.settings.cols).fill(false);
+        for(let i = 1; i < dotsRow.length; i += 2) { dotsRow[i] = true; }
+        newGrid.splice(1, 0, dotsRow, Array(state.settings.cols).fill(false));
+        return { grid: newGrid };
+      } else if(toolName === "ShiftLeft") {
+        const newGrid = deepClone(state.grid);
+        for(let i = 1; i < newGrid.length-2; i++) {
+          const row = newGrid[i];
+          row.splice(1, 2);
+          row.splice(row.length-1, 0, false, i % 2 === 1);
+        }
+        return { grid: newGrid };
+      } else if(toolName === "ShiftRight") {
+        const newGrid = deepClone(state.grid);
+        for(let i = 1; i < newGrid.length-2; i++) {
+          const row = newGrid[i];
+          row.splice(row.length-3, 2);
+          row.splice(1, 0, i % 2 === 1, false);
+        }
+        return { grid: newGrid };
       }
     });
   }

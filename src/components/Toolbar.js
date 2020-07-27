@@ -6,6 +6,10 @@ import eraserIcon from "../images/eraser.png";
 import newIcon from "../images/new.png";
 import undoIcon from "../images/undo.png";
 import redoIcon from "../images/redo.png";
+import shiftUpIcon from "../images/shiftup.png";
+import shiftDownIcon from "../images/shiftdown.png";
+import shiftLeftIcon from "../images/shiftleft.png";
+import shiftRightIcon from "../images/shiftright.png";
 
 export const TOOLBAR_DATA = {
 	Pencil: {
@@ -33,6 +37,22 @@ export function Toolbar(props) {
 		Redo: {
 			image: redoIcon,
 			isDisabled: !props.canRedo
+		},
+		ShiftUp: {
+			image: shiftUpIcon,
+			isDisabled: false
+		},
+		ShiftDown: {
+			image: shiftDownIcon,
+			isDisabled: false
+		},
+		ShiftLeft: {
+			image: shiftLeftIcon,
+			isDisabled: false
+		},
+		ShiftRight: {
+			image: shiftRightIcon,
+			isDisabled: false
 		}
 	};
 

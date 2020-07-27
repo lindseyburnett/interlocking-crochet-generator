@@ -10,17 +10,14 @@
 
 ### Must have
 - Save/Load
-- Undo/Redo
-  - Keep record of grid states, similar to the tic-tac-toe project
-  - Create a new entry on mouse *up*
-  - Make sure to cap the number of entries in the history!
-- Shift everything in any direction
-  - Ex: when shifting right, grab the last column and copy it to the beginning
 
 ### Nice to have
 - Print
   - Format pattern to be underneath grid
 - Draw line
+  - Start with a temporary Canvas and overlay a line
+  - Line overlay rendered should only be completely horiz or completely vert
+  - Once they mouseup, calculate the start and end of the overlay, and then loop through the row/col to draw it
 - Random
   - Just go through all the line squares and randomize their values
   - Add a confirmation dialog
@@ -51,6 +48,8 @@
 ### Nice to have
 - Collapse toggle for sidebar
 - Toolbar hotkeys
+  - If you can get the line tool working, shift key down switches you to it, and shift key up takes you back to where you were
+  - (Careful of bugs with letting go of shift while mouse is still down)
 - "About" modal with contact email for bug reports etc.
 - Refactor everything to use a 1D array for the grid if possible
   - Lets you avoid having to deep clone the grid every time you need to update, for better efficiency
