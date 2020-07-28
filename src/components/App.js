@@ -8,6 +8,12 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { isSquareDot } from "../utils/square-utils";
 
+const SETTINGS_STYLE_VARIABLES = {
+  bgColor: "--bg-color",
+  fgColor: "--fg-color",
+  squareSize: "--square-size"
+};
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -50,9 +56,7 @@ export default class App extends React.Component {
 
     // initialize default styles
     this.updateToolStyles(TOOLBAR_DATA[defaultTool]);
-    this.updateStyleVariable("--bg-color", this.state.settings.bgColor);
-    this.updateStyleVariable("--fg-color", this.state.settings.fgColor);
-    this.updateStyleVariable("--square-size", this.state.settings.squareSize + "px");
+    this.updateBulkStyleVariables(this.state.settings);
 
     this.handleActiveToolbarClick = this.handleActiveToolbarClick.bind(this);
     this.handlePassiveToolbarClick = this.handlePassiveToolbarClick.bind(this);
@@ -80,12 +84,14 @@ export default class App extends React.Component {
   }
 
   handlePassiveToolbarClick(toolName) {
-    this.setState((state, props) => {
-      if(toolName === "New") {
-        if(window.confirm("Are you sure?")) {
+    if(toolName === "New") {
+      if(window.confirm("Are you sure you want to clear the grid? (You'll be able to undo.)")) {
+        this.setState((state, props) => {
           return { grid: initializeDots(state.grid, true) };
-        }
-      } else if(toolName === "Undo") {
+        });
+      }
+    } else if(toolName === "Undo") {
+      this.setState((state, props) => {
         const currentIndex = state.currentHistoryIndex;
         if(currentIndex === 0) return; // failsafe
 
@@ -98,7 +104,9 @@ export default class App extends React.Component {
           currentHistoryIndex: currentIndex - 1,
           settings: newSettings
         };
-      } else if(toolName === "Redo") {
+      });
+    } else if(toolName === "Redo") {
+      this.setState((state, props) => {
         const currentIndex = state.currentHistoryIndex;
         if(currentIndex === state.history.length-1) return; // failsafe
 
@@ -111,24 +119,30 @@ export default class App extends React.Component {
           currentHistoryIndex: currentIndex + 1,
           settings: newSettings
         };
-      } else if(toolName === "ShiftUp") {
-        // shifts are lossy because behavior is inconsistent near the edges
-        // if you have a "C" shape on the right edge, and shift right, the top and bottom bars will have to be lost
-        // at least by losing everything that goes off the edge, it's intentional rather than looking buggy
+      });
+    } else if(toolName === "ShiftUp") {
+      // shifts are lossy because behavior is inconsistent near the edges
+      // if you have a "C" shape on the right edge, and shift right, the top and bottom bars will have to be lost
+      // at least by losing everything that goes off the edge, it's intentional rather than looking buggy
+      this.setState((state, props) => {
         const newGrid = deepClone(state.grid);
         newGrid.splice(1, 2);
         const dotsRow = Array(state.settings.cols).fill(false);
         for(let i = 1; i < dotsRow.length; i += 2) { dotsRow[i] = true; }
         newGrid.splice(newGrid.length-1, 0, Array(state.settings.cols).fill(false), dotsRow);
         return { grid: newGrid };
-      } else if(toolName === "ShiftDown") {
+      });
+    } else if(toolName === "ShiftDown") {
+      this.setState((state, props) => {
         const newGrid = deepClone(state.grid);
         newGrid.splice(newGrid.length-3, 2);
         const dotsRow = Array(state.settings.cols).fill(false);
         for(let i = 1; i < dotsRow.length; i += 2) { dotsRow[i] = true; }
         newGrid.splice(1, 0, dotsRow, Array(state.settings.cols).fill(false));
         return { grid: newGrid };
-      } else if(toolName === "ShiftLeft") {
+      });
+    } else if(toolName === "ShiftLeft") {
+      this.setState((state, props) => {
         const newGrid = deepClone(state.grid);
         for(let i = 1; i < newGrid.length-2; i++) {
           const row = newGrid[i];
@@ -136,7 +150,9 @@ export default class App extends React.Component {
           row.splice(row.length-1, 0, false, i % 2 === 1);
         }
         return { grid: newGrid };
-      } else if(toolName === "ShiftRight") {
+      });
+    } else if(toolName === "ShiftRight") {
+      this.setState((state, props) => {
         const newGrid = deepClone(state.grid);
         for(let i = 1; i < newGrid.length-2; i++) {
           const row = newGrid[i];
@@ -144,8 +160,127 @@ export default class App extends React.Component {
           row.splice(1, 0, i % 2 === 1, false);
         }
         return { grid: newGrid };
+      });
+    } else if(toolName === "Save") {
+      let saveStr = "grid:";
+
+      for(let i = 0; i < this.state.grid.length; i++) {
+        for(let j = 0; j < this.state.grid[i].length; j++) {
+          saveStr += this.state.grid[i][j] ? "1" : "0";
+        }
+        if(i !== this.state.grid[i].length-1) saveStr += ",";
       }
-    });
+
+      Object.keys(this.state.settings).forEach(settingsKey => {
+        saveStr += `\n${settingsKey}:${this.state.settings[settingsKey]}`;
+      });
+
+      const temp = document.createElement("a");
+      const file = new Blob([saveStr], {type: "text/plain"});
+      temp.href = URL.createObjectURL(file);
+      temp.download = "icg_save.icg";
+      document.body.appendChild(temp); // Firefox compat
+      temp.click();
+      temp.remove();
+    } else if(toolName === "Load") {
+      if(!window.confirm("Are you sure? Any unsaved work will be lost.")) return;
+
+      // create a temporary file input to hold the uploaded save data
+      const temp = document.createElement("input");
+      temp.type = "file";
+      temp.style.display = "none";
+      temp.setAttribute("accept", ".icg");
+
+      // delete any inputs from before, like if the user clicked cancel
+      const oldInput = document.querySelector("input[type='file'][accept='.icg']");
+      if(oldInput) oldInput.remove();
+
+      // add the temp input to the page and set up behavior
+      document.body.appendChild(temp);
+      temp.addEventListener("change", e => {
+        const file = e.target.files[0];
+        if(!file) return; // failsafe
+        const reader = new FileReader();
+        reader.onload = e => {
+          this.setState((state, props) => {
+            const loadedData = e.target.result;
+
+            const dataEntries = {};
+            let isInvalid = false;
+            loadedData.split("\n").forEach(entry => {
+              const entryParts = entry.split(":");
+              if(entryParts.length !== 2) {
+                isInvalid = true;
+                return;
+              }
+
+              dataEntries[entryParts[0]] = entryParts[1];
+            });
+
+            if(isInvalid) {
+              window.alert("Error: Save data is invalid (data is malformed).");
+              return;
+            }
+
+            if(!dataEntries.grid || !dataEntries.rows || !dataEntries.cols) {
+              window.alert("Error: Save data is invalid (missing grid info).");
+              return;
+            }
+
+            const gridData = dataEntries.grid.split(",");
+            const rows = parseInt(dataEntries.rows);
+            const cols = parseInt(dataEntries.cols);
+
+            // make sure the grid data has the right dimensions
+            if(!rows || !cols || gridData.length !== rows || gridData[0].length !== cols) {
+              window.alert("Error: Save data is invalid (grid info is malformed).");
+              return;
+            }
+
+            // convert grid data into the form used by the app
+            const grid = [];
+            gridData.forEach(rowData => {
+              const row = [];
+              rowData.split("").forEach(squareData => {
+                row.push(squareData === "1");
+              });
+              grid.push(row);
+            });
+
+            // make sure all settings are present
+            const settings = deepClone(dataEntries);
+            delete settings.grid;
+            if(JSON.stringify(Object.keys(settings).sort()) !== JSON.stringify(Object.keys(state.settings).sort())) {
+              window.alert("Error: Save data is invalid (missing or invalid settings).");
+              return;
+            }
+
+            // convert settings data into the form used by the app
+            Object.keys(settings).forEach(settingsKey => {
+              const settingsValue = settings[settingsKey];
+              if(parseInt(settingsValue)) settings[settingsKey] = parseInt(settingsValue);
+              if(settingsValue === "false") settings[settingsKey] = false;
+              if(settingsValue === "true") settings[settingsKey] = true;
+            });
+
+            // done parsing, update the app!
+            // (in theory we could just not wipe the history, but this makes more sense imo)
+            this.updateBulkStyleVariables(settings);
+            return { grid: grid, settings: settings, currentHistoryIndex: 0, history: [{
+              grid: deepClone(grid),
+              rows: settings.rows,
+              cols: settings.cols
+            }]};
+          });
+        }
+        reader.readAsText(file);
+
+        temp.remove();
+      });
+
+      // prompt the user for a file to get the ball rolling
+      temp.click();
+    }
   }
 
   handleMouseDown() {
@@ -215,16 +350,16 @@ export default class App extends React.Component {
       const settingValue = newValues[settingName];
       const handlerFunc = {
         "rows": this.updateRowsCount,
-        "cols": this.updateColsCount,
-        "bgColor": () => this.updateStyleVariable("--bg-color", settingValue),
-        "fgColor": () => this.updateStyleVariable("--fg-color", settingValue),
-        "squareSize": () => this.updateStyleVariable("--square-size", settingValue + "px")
+        "cols": this.updateColsCount
       }[settingName];
       
       if(handlerFunc) {
         handlerFunc(settingValue);
       }
     });
+
+    // update style variables as needed
+    this.updateBulkStyleVariables(newValues);
 
     // once that's done, update everything in the state
     // this both handles things that don't need a handler function, and preserves the current values in the form
@@ -275,6 +410,16 @@ export default class App extends React.Component {
 
   updateStyleVariable(varName, newValue) {
     document.documentElement.style.setProperty(varName, newValue);
+  }
+
+  updateBulkStyleVariables(settings) {
+    Object.keys(settings).forEach(settingsKey => {
+      const styleVariable = SETTINGS_STYLE_VARIABLES[settingsKey];
+      if(styleVariable) {
+        const settingsValue = settingsKey === "squareSize" ? settings[settingsKey] + "px" : settings[settingsKey];
+        this.updateStyleVariable(styleVariable, settingsValue);
+      }
+    })
   }
 
   render() {
