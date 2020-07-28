@@ -9,7 +9,7 @@
 ## Tools
 
 ### Must have
-- Save/Load
+(none atm)
 
 ### Nice to have
 - Print
@@ -18,6 +18,7 @@
   - Start with a temporary Canvas and overlay a line
   - Line overlay rendered should only be completely horiz or completely vert
   - Once they mouseup, calculate the start and end of the overlay, and then loop through the row/col to draw it
+    - If you can get the pixels, you can divide that by the square size setting to get squares
 - Random
   - Just go through all the line squares and randomize their values
   - Add a confirmation dialog
@@ -26,7 +27,7 @@
 ## Settings
 
 ### Must have
-(none atm)
+- Toggle for row/stitch counters
 
 ### Nice to have
 - Flip for working in the round
@@ -41,8 +42,8 @@
 - Warning for IE and older browsers
   - CSS vars are IE-incompatible, so this def won't work there
 - Warning when leaving the page
-- Proper site title and favicon
 - Toolbar tooltips
+- Test other major browsers (especially Mac Safari)
 - Styling for smaller resolutions (ideally should be at least usable on mobile, even if it's a little shitty)
 
 ### Nice to have
