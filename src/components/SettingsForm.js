@@ -1,7 +1,20 @@
 import React from "react";
 import "./SettingsForm.scss";
-import { Formik, Form } from "formik";
+import { Formik, Form, useFormikContext } from "formik";
 import SettingsField from "./SettingsField";
+
+function ColorSwitchButton(props) {
+	const {values, setFieldValue} = useFormikContext();
+
+	return (
+		<button type="button" onClick={() => handleColorSwitchClick(values.bgColor, values.fgColor, setFieldValue)}>Switch</button>
+	);
+}
+
+function handleColorSwitchClick(bg, fg, setFieldValue) {
+	setFieldValue("fgColor", bg);
+	setFieldValue("bgColor", fg);
+}
 
 export default function SettingsForm(props) {
 	return (
@@ -33,6 +46,7 @@ export default function SettingsForm(props) {
 					<div className="SettingsForm__row">
 						<SettingsField name="bgColor" label="Background" fieldProps={{ type: "color" }} />
 						<SettingsField name="fgColor" label="Foreground" fieldProps={{ type: "color" }} />
+						<ColorSwitchButton />
 					</div>
 					<div className="SettingsForm__row">
 						<SettingsField name="rows" label="Rows" fieldProps={{

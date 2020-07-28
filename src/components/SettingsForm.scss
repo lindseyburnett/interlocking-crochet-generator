@@ -3,6 +3,7 @@
 	flex-direction: column;
 
 	&__row {
+		align-items: center;
 		display: flex;
 
 		&:not(:last-child) {
@@ -11,7 +12,10 @@
 	}
 
 	button {
-		margin-top: 20px;
 		padding: 5px 8px;
+
+		&[type='submit'] {
+			margin-top: 20px;
+		}
 	}
 }
