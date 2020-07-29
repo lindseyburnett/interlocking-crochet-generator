@@ -12,18 +12,21 @@ import shiftLeftIcon from "../images/shiftleft.png";
 import shiftRightIcon from "../images/shiftright.png";
 import saveIcon from "../images/save.png";
 import loadIcon from "../images/load.png";
+import randomIcon from "../images/random.png";
 
 // active tool data is exported so we can access cursor info elsewhere
 export const TOOLBAR_DATA = {
 	Pencil: {
 		image: pencilIcon,
 		cursorX: 0,
-		cursorY: 22
+		cursorY: 22,
+		tooltip: "Pencil Tool (Q)"
 	},
 	Eraser: {
 		image: eraserIcon,
 		cursorX: 0,
-		cursorY: 24
+		cursorY: 24,
+		tooltip: "Eraser Tool (W)"
 	}
 };
 
@@ -32,43 +35,59 @@ export function Toolbar(props) {
 		{
 			New: {
 				image: newIcon,
-				isDisabled: false
+				isDisabled: false,
+				tooltip: "New Pattern (N)"
 			},
 			Save: {
 				image: saveIcon,
-				isDisabled: false
+				isDisabled: false,
+				tooltip: "Save Pattern (S)"
 			},
 			Load: {
 				image: loadIcon,
-				isDisabled: false
+				isDisabled: false,
+				tooltip: "Load Pattern (O)"
 			}
 		},
 		{
 			Undo: {
 				image: undoIcon,
-				isDisabled: !props.canUndo
+				isDisabled: !props.canUndo,
+				tooltip: "Undo (Z/ctrl+z)"
 			},
 			Redo: {
 				image: redoIcon,
-				isDisabled: !props.canRedo
+				isDisabled: !props.canRedo,
+				tooltip: "Redo (Y/ctrl+y)"
 			}
 		},
 		{
 			ShiftUp: {
 				image: shiftUpIcon,
-				isDisabled: false
+				isDisabled: false,
+				tooltip: "Shift Up (I)"
 			},
 			ShiftDown: {
 				image: shiftDownIcon,
-				isDisabled: false
+				isDisabled: false,
+				tooltip: "Shift Down (K)"
 			},
 			ShiftLeft: {
 				image: shiftLeftIcon,
-				isDisabled: false
+				isDisabled: false,
+				tooltip: "Shift Left (J)"
 			},
 			ShiftRight: {
 				image: shiftRightIcon,
-				isDisabled: false
+				isDisabled: false,
+				tooltip: "Shift Right (L)"
+			}
+		},
+		{
+			Random: {
+				image: randomIcon,
+				isDisabled: false,
+				tooltip: "Random Pattern (R)"
 			}
 		}
 	];
@@ -82,6 +101,7 @@ export function Toolbar(props) {
 				image={tool.image}
 				isActive={toolKey === props.activeTool}
 				handleClick={props.handleActiveClick}
+				tooltip={tool.tooltip}
 			/>
 		);
 	});
@@ -97,6 +117,7 @@ export function Toolbar(props) {
 					image={tool.image}
 					handleClick={props.handlePassiveClick}
 					disabled={tool.isDisabled}
+					tooltip={tool.tooltip}
 				/>
 			);
 		});

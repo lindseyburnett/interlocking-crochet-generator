@@ -6,7 +6,8 @@ import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import { isSquareDot } from "../utils/square-utils";
+import { isSquareDot, isSquareLine } from "../utils/square-utils";
+import { HotKeys } from "react-hotkeys";
 
 const SETTINGS_STYLE_VARIABLES = {
   bgColor: "--bg-color",
@@ -144,7 +145,7 @@ export default class App extends React.Component {
     } else if(toolName === "ShiftLeft") {
       this.setState((state, props) => {
         const newGrid = deepClone(state.grid);
-        for(let i = 1; i < newGrid.length-2; i++) {
+        for(let i = 1; i < newGrid.length-1; i++) {
           const row = newGrid[i];
           row.splice(1, 2);
           row.splice(row.length-1, 0, false, i % 2 === 1);
@@ -154,7 +155,7 @@ export default class App extends React.Component {
     } else if(toolName === "ShiftRight") {
       this.setState((state, props) => {
         const newGrid = deepClone(state.grid);
-        for(let i = 1; i < newGrid.length-2; i++) {
+        for(let i = 1; i < newGrid.length-1; i++) {
           const row = newGrid[i];
           row.splice(row.length-3, 2);
           row.splice(1, 0, i % 2 === 1, false);
@@ -183,7 +184,7 @@ export default class App extends React.Component {
       temp.click();
       temp.remove();
     } else if(toolName === "Load") {
-      if(!window.confirm("Are you sure? Any unsaved work will be lost.")) return;
+      if(!window.confirm("Are you sure you want to load a new pattern? Any unsaved work will be lost.")) return;
 
       // create a temporary file input to hold the uploaded save data
       const temp = document.createElement("input");
@@ -280,6 +281,19 @@ export default class App extends React.Component {
 
       // prompt the user for a file to get the ball rolling
       temp.click();
+    } else if(toolName === "Random") {
+      if(!window.confirm("Are you sure you want to randomize all squares? (You'll be able to undo.)")) return;
+      this.setState((state, props) => {
+        const newGrid = deepClone(state.grid);
+        for(let i = 1; i < newGrid.length-1; i++) {
+          for(let j = 1; j < newGrid[i].length-1; j++) {
+            if(isSquareLine(i, j)) {
+              newGrid[i][j] = Math.random() >= 0.5;
+            }
+          }
+        }
+        return { grid: newGrid };
+      });
     }
   }
 
@@ -422,7 +436,50 @@ export default class App extends React.Component {
     })
   }
 
+  componentDidMount() {
+    window.addEventListener("beforeunload", this.handleBeforeUnload);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.handleBeforeUnload);
+  }
+
+  handleBeforeUnload(e) {
+    e.preventDefault();
+    e.returnValue = true;
+  }
+
   render() {
+    const hotkeysMap = {
+      PENCIL: "q",
+      ERASER: "w",
+      NEW: "n",
+      SAVE: "s",
+      LOAD: "o",
+      UNDO: ["ctrl+z", "z"],
+      REDO: ["ctrl+y", "y"],
+      SHIFT_UP: "i",
+      SHIFT_LEFT: "j",
+      SHIFT_DOWN: "k",
+      SHIFT_RIGHT: "l",
+      RANDOM: "r"
+    };
+
+    const hotkeysHandlers = {
+      PENCIL: () => this.handleActiveToolbarClick("Pencil"),
+      ERASER: () => this.handleActiveToolbarClick("Eraser"),
+      NEW: () => this.handlePassiveToolbarClick("New"),
+      SAVE: () => this.handlePassiveToolbarClick("Save"),
+      LOAD: () => this.handlePassiveToolbarClick("Load"),
+      UNDO: () => this.handlePassiveToolbarClick("Undo"),
+      REDO: () => this.handlePassiveToolbarClick("Redo"),
+      SHIFT_UP: () => this.handlePassiveToolbarClick("ShiftUp"),
+      SHIFT_LEFT: () => this.handlePassiveToolbarClick("ShiftLeft"),
+      SHIFT_DOWN: () => this.handlePassiveToolbarClick("ShiftDown"),
+      SHIFT_RIGHT: () => this.handlePassiveToolbarClick("ShiftRight"),
+      RANDOM: () => this.handlePassiveToolbarClick("Random")
+    };
+
     return (
       <div 
         className="App"
@@ -431,41 +488,43 @@ export default class App extends React.Component {
         onMouseLeave={this.handleMouseUp}
         onClick={this.updateHistoryIfNeeded}
       >
-        <Toolbar 
-          activeTool={this.state.activeTool} 
-          handleActiveClick={this.handleActiveToolbarClick}
-          handlePassiveClick={this.handlePassiveToolbarClick}
-          canUndo={this.state.currentHistoryIndex > 0}
-          canRedo={this.state.currentHistoryIndex < this.state.history.length - 1}
-        />
-        <div className="App__main">
-          <div className="App__col">
-            <DrawingGrid 
-              grid={this.state.grid}
-              showDetailedView={this.state.settings.showDetailedView}
-              showGrid={this.state.settings.showGrid}
-              handleSquareInteract={this.handleSquareInteract}
-              mouseHeld={this.state.mouseHeld}
-            />
+        <HotKeys keyMap={hotkeysMap} handlers={hotkeysHandlers}>
+          <Toolbar 
+            activeTool={this.state.activeTool} 
+            handleActiveClick={this.handleActiveToolbarClick}
+            handlePassiveClick={this.handlePassiveToolbarClick}
+            canUndo={this.state.currentHistoryIndex > 0}
+            canRedo={this.state.currentHistoryIndex < this.state.history.length - 1}
+          />
+          <div className="App__main">
+            <div className="App__col">
+              <DrawingGrid 
+                grid={this.state.grid}
+                showDetailedView={this.state.settings.showDetailedView}
+                showGrid={this.state.settings.showGrid}
+                handleSquareInteract={this.handleSquareInteract}
+                mouseHeld={this.state.mouseHeld}
+              />
+            </div>
+            <div className="App__col">
+              <Tabs>
+                <TabList>
+                  <Tab>Pattern</Tab>
+                  <Tab>Settings</Tab>
+                </TabList>
+                <TabPanel>
+                  <PatternDisplay grid={this.state.grid} />
+                </TabPanel>
+                <TabPanel>
+                  <SettingsForm
+                    handleSubmit={this.handleSettingsSubmit}
+                    settings={this.state.settings}
+                  />
+                </TabPanel>
+              </Tabs>
+            </div>
           </div>
-          <div className="App__col">
-            <Tabs>
-              <TabList>
-                <Tab>Pattern</Tab>
-                <Tab>Settings</Tab>
-              </TabList>
-              <TabPanel>
-                <PatternDisplay grid={this.state.grid} />
-              </TabPanel>
-              <TabPanel>
-                <SettingsForm
-                  handleSubmit={this.handleSettingsSubmit}
-                  settings={this.state.settings}
-                />
-              </TabPanel>
-            </Tabs>
-          </div>
-        </div>
+        </HotKeys>
       </div>
     );
   }

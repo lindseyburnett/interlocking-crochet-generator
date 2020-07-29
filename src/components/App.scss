@@ -21,4 +21,9 @@
 			flex-grow: 1;
 		}
 	}
+
+	// get rid of outline from HotKey component focusing
+	& > div:focus {
+		outline: none;
+	}
 }
