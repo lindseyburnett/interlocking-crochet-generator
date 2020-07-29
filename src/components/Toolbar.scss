@@ -1,9 +1,11 @@
 .Toolbar {
 	display: flex;
+	flex-wrap: wrap;
 	padding: 15px 15px 0;
 
 	&__section {
 		display: flex;
+		margin-bottom: 15px;
 		
 		&:not(:last-child) {
 			margin-right: 25px;
