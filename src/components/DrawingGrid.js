@@ -2,7 +2,7 @@ import React from "react";
 import "./DrawingGrid.scss";
 import DrawingGridSquare from "./DrawingGridSquare";
 import {isSquareEdge} from "../utils/square-utils";
-// import LineTo from "react-lineto";
+import LineTo from "react-lineto";
 
 export default class DrawingGrid extends React.Component {
 	constructor(props) {
@@ -106,22 +106,16 @@ export default class DrawingGrid extends React.Component {
 			</div>
 		));
 
-		const isWidthNegative = Math.sign(this.state.lineEndX - this.state.lineStartX) === -1;
-		const isHeightNegative = Math.sign(this.state.lineEndY - this.state.lineStartY) === -1;
-		const absWidth = Math.abs(this.state.lineEndX - this.state.lineStartX) + 2;
-		const absHeight = Math.abs(this.state.lineEndY - this.state.lineStartY) + 2
-		const showLine = absWidth !== 2 || absHeight !== 2;
-
-		const line = (
-			<div 
-				className="DrawingGrid__line" 
-				style={{
-					top: this.state.lineStartY - (isHeightNegative ? absHeight: 0), 
-					left: this.state.lineStartX - (isWidthNegative ? absWidth : 0), 
-					width: Math.abs(this.state.lineEndX - this.state.lineStartX) + 2,
-					height: Math.abs(this.state.lineEndY - this.state.lineStartY) + 2
-				}} 
-			/>
+		const lineEnds = (
+			<React.Fragment>
+				<div className="DrawingGrid__line-cap  js-line-start" style={{top: this.state.lineStartY, left: this.state.lineStartX}} />
+				<div className="DrawingGrid__line-cap  js-line-end" style={{top: this.state.lineEndY, left: this.state.lineEndX}} />
+				<LineTo 
+					from="js-line-start" to="js-line-end" 
+					borderColor={document.documentElement.style.getPropertyValue("--fg-color")} 
+					borderWidth={2}
+				/>
+			</React.Fragment>
 		);
 
 		return (
@@ -133,7 +127,7 @@ export default class DrawingGrid extends React.Component {
 				onMouseLeave={this.handleMouseLeave}
 				onMouseEnter={this.handleMouseEnter}
 			>
-				{this.props.lineToolActive && showLine && line}
+				{this.props.lineToolActive && lineEnds}
 				{contents}
 			</div>
 		);
