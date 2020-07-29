@@ -27,11 +27,11 @@ export default function SettingsForm(props) {
 					const cols = parseInt(values.cols);
 					const squareSize = parseInt(values.squareSize);
 
-					if(rows < 3) errors.rows = "Must be at least 3";
+					if(rows < 5) errors.rows = "Must be at least 5";
 					else if(rows > 99) errors.rows = "Must be less than 100";
 					else if(rows % 2 === 0) errors.rows = "Must be odd";
 
-					if(cols < 3) errors.cols = "Must be at least 3";
+					if(cols < 5) errors.cols = "Must be at least 5";
 					else if(cols > 99) errors.cols = "Must be 99 or less";
 					else if(cols % 2 === 0) errors.cols = "Must be odd";
 
@@ -51,14 +51,14 @@ export default function SettingsForm(props) {
 					<div className="SettingsForm__row">
 						<SettingsField name="rows" label="Rows" fieldProps={{
 								type: "number",
-								min: "3",
+								min: "5",
 								max: "99",
 								step: "2"
 							}}
 						/>
 						<SettingsField name="cols" label="Columns" fieldProps={{
 								type: "number",
-								min: "3",
+								min: "5",
 								max: "99",
 								step: "2"
 							}}

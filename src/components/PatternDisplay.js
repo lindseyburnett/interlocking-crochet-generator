@@ -15,11 +15,9 @@ export default function PatternDisplay(props) {
 
 		if(currentSide === "RS" && currentColor === "FG" && row === rows-3) {
 			if(col === cols-2) {
-				return gridValue ? 
-					"Lay the chain on top of the BG mesh, so that your turning chain will be in FRONT. " :
-					"Thread the chain front-to-back through the far-right hole of the BG mesh, so that your turning chain will be in the BACK. ";
+				return `The active loop of the FG chain should be on the ${gridValue ? "FRONT" : "BACK"} side of the BG mesh. `;
 			} else if(col === cols-4) {
-				return `DC in the 6th ch from the hook on the ${gridValue ? "FRONT" : "BACK"} side of the BG mesh. Then: `;
+				return `DC in the 6th ch from the hook on the ${gridValue ? "FRONT" : "BACK"} side of the mesh. Then: `;
 			}			
 		}
 
@@ -31,7 +29,18 @@ export default function PatternDisplay(props) {
 		}
 	};
 
-	// loop through rows from bottom up, starting from 3rd row from the bottom
+	// start with the 2nd row from the bottom, which is special since you have to thread the FG chain
+	let chainSetup = `With FG, ch ${cols-2}+3. `;
+	const setupInFront = grid[rows-3][cols-2];
+	chainSetup += `Place the chain ${setupInFront ? "on top of" : "behind"} the BG mesh, so that the end closest to your hook is in the ${setupInFront ? "front" : "back"}. `;
+	chainSetup += "Going from right to left, weave the tail of the chain in and out of the ch spaces in the BG mesh, so that it lays in the front or back of the BG dcs in this order: ";
+	for(let i = cols-3; i >= 2; i -= 2) {
+		const separator = i === 2 ? "." : ", ";
+		chainSetup += grid[rows-2][i] ? "front" : "back";
+		chainSetup += separator;
+	}
+
+	// continue looping through rows from bottom up
 	for(let i = rows - 3; i >= 0; i--) {
 		const currentRow = rows - 2 - i;
 		const currentColor = currentRow % 2 === 0 ? "BG" : "FG";
@@ -128,7 +137,8 @@ export default function PatternDisplay(props) {
 			
 			<div className="PatternDisplay__step">
 				<strong>Row 0/Initial setup</strong>
-				<p>With BG, ch {cols}+3, then dc into 6th ch from hook. *Ch 1, skip ch, dc in next ch* Repeat from * to *, ending with dc in the last ch. Set aside. With FG, ch {cols-2}+3.</p>
+				<p>With BG, ch {cols}+3, then dc into 6th ch from hook. *Ch 1, skip ch, dc in next ch* Repeat from * to *, ending with dc in the last ch. Set aside.</p>
+				<p>{chainSetup}</p>
 				<p>From here on, always ch 1 and skip a stitch between each dc.</p>
 			</div>
 			{steps.map(step => (
