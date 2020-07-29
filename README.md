@@ -52,3 +52,4 @@
 - Collapse toggle for grid
 - Visual polish on buttons (indicator for being clicked, etc.)
 - Make grid position:sticky on desktop
+- Better cursor icon for line tool

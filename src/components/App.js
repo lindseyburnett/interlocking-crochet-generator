@@ -67,14 +67,28 @@ export default class App extends React.Component {
     this.handleSquareInteract = this.handleSquareInteract.bind(this);
     this.handlePencilAction = this.handlePencilAction.bind(this);
     this.handleEraserAction = this.handleEraserAction.bind(this);
+    this.handleLineAction = this.handleLineAction.bind(this);
     this.handleSettingsSubmit = this.handleSettingsSubmit.bind(this);
     this.updateRowsCount = this.updateRowsCount.bind(this);
     this.updateColsCount = this.updateColsCount.bind(this);
   }
 
+  componentDidMount() {
+    window.addEventListener("beforeunload", this.handleBeforeUnload);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.handleBeforeUnload);
+  }
+
+  handleBeforeUnload(e) {
+    e.preventDefault();
+    e.returnValue = true;
+  }
+
   updateToolStyles(toolData) {
     const doc = document.documentElement;
-    doc.style.setProperty("--tool-cursor", `url(${toolData.image})`);
+    doc.style.setProperty("--tool-cursor", `url(${toolData.cursorImage})`);
     doc.style.setProperty("--tool-cursor-x", toolData.cursorX);
     doc.style.setProperty("--tool-cursor-y", toolData.cursorY);
   }
@@ -346,12 +360,28 @@ export default class App extends React.Component {
     });
   }
 
+  // this is called from DrawingGrid, unlike the other active handlers
+  handleLineAction(lineStartX, lineStartY, lineEndX, lineEndY) {
+    // TODO:
+    // convert pixel coordinates to square coordinates by dividing by pixels per square in settings
+    // loop through grid between the two squares and set all valid line squares to true
+
+    const squareSize = this.state.settings.squareSize;
+    const startCol = Math.floor(lineStartX / squareSize);
+    const startRow = Math.floor(lineStartY / squareSize);
+    const endCol = Math.floor(lineEndX / squareSize);
+    const endRow = Math.floor(lineEndY / squareSize);
+
+    console.log(startCol, startRow, endCol, endRow);
+  }
+
   handleSquareInteract(row, col, isValid) {
     if(!isValid) return;
 
     let actionFunc = {
       Pencil: this.handlePencilAction,
-      Eraser: this.handleEraserAction
+      Eraser: this.handleEraserAction,
+      Line: () => {} // noop; line requires special handling mostly called through DrawingGrid
     }[this.state.activeTool];
 
     actionFunc(row, col);
@@ -436,23 +466,11 @@ export default class App extends React.Component {
     })
   }
 
-  componentDidMount() {
-    window.addEventListener("beforeunload", this.handleBeforeUnload);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("beforeunload", this.handleBeforeUnload);
-  }
-
-  handleBeforeUnload(e) {
-    e.preventDefault();
-    e.returnValue = true;
-  }
-
   render() {
     const hotkeysMap = {
       PENCIL: "q",
       ERASER: "w",
+      LINE: "e",
       NEW: "n",
       SAVE: "s",
       LOAD: "o",
@@ -468,6 +486,7 @@ export default class App extends React.Component {
     const hotkeysHandlers = {
       PENCIL: () => this.handleActiveToolbarClick("Pencil"),
       ERASER: () => this.handleActiveToolbarClick("Eraser"),
+      LINE: () => this.handleActiveToolbarClick("Line"),
       NEW: () => this.handlePassiveToolbarClick("New"),
       SAVE: () => this.handlePassiveToolbarClick("Save"),
       LOAD: () => this.handlePassiveToolbarClick("Load"),
@@ -504,6 +523,8 @@ export default class App extends React.Component {
                 showGrid={this.state.settings.showGrid}
                 handleSquareInteract={this.handleSquareInteract}
                 mouseHeld={this.state.mouseHeld}
+                lineToolActive={this.state.activeTool === "Line"}
+                handleLineAction={this.handleLineAction}
               />
             </div>
             <div className="App__col">

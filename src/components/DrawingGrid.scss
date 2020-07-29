@@ -6,6 +6,8 @@
 	flex-direction: column;
 	overflow-x: auto;
 
+	position: relative;
+
 	&__row {
 		display: flex;
 	}
@@ -16,5 +18,16 @@
 		.DrawingGridSquare {
 			border: none !important;
 		}
+	}
+
+	&__line-cap {
+		// // for debugging only
+		// background-color: pink;
+		// border-radius: 10px;
+		// height: 10px;
+		// width: 10px;
+		// z-index: 2;
+
+		position: absolute;
 	}
 }

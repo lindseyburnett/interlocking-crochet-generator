@@ -13,20 +13,30 @@ import shiftRightIcon from "../images/shiftright.png";
 import saveIcon from "../images/save.png";
 import loadIcon from "../images/load.png";
 import randomIcon from "../images/random.png";
+import lineIcon from "../images/line.png";
 
 // active tool data is exported so we can access cursor info elsewhere
 export const TOOLBAR_DATA = {
 	Pencil: {
 		image: pencilIcon,
+		cursorImage: pencilIcon,
 		cursorX: 0,
-		cursorY: 22,
+		cursorY: 21,
 		tooltip: "Pencil Tool (Q)"
 	},
 	Eraser: {
 		image: eraserIcon,
+		cursorImage: eraserIcon,
 		cursorX: 0,
 		cursorY: 24,
 		tooltip: "Eraser Tool (W)"
+	},
+	Line: {
+		image: lineIcon,
+		cursorImage: pencilIcon,
+		cursorX: 0,
+		cursorY: 21,
+		tooltip: "Line Tool (E)"
 	}
 };
 
