@@ -3,7 +3,11 @@ function isOdd(num) {
 }
 
 export function isSquareEdge(row, col, grid) {
-	return row % (grid.length-1) === 0 || col % (grid[row].length-1) === 0;
+	return (
+		row % (grid.length-1) === 0 || 
+		col % (grid[row].length-1) === 0 ||
+		grid[row][col] === undefined
+	);
 }
 
 export function isSquareDot(row, col) {

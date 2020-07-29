@@ -2,9 +2,7 @@ import React from "react";
 import "./DrawingGrid.scss";
 import DrawingGridSquare from "./DrawingGridSquare";
 import {isSquareEdge} from "../utils/square-utils";
-import LineTo from "react-lineto";
-
-// TODO: use this to draw a line between the two points if the mouse is held: https://github.com/kdeloach/react-lineto
+// import LineTo from "react-lineto";
 
 export default class DrawingGrid extends React.Component {
 	constructor(props) {
@@ -13,13 +11,16 @@ export default class DrawingGrid extends React.Component {
 			lineStartX: 0,
 			lineStartY: 0,
 			lineEndX: 0,
-			lineEndY: 0
+			lineEndY: 0,
+			heldMouseMovedOutside: false
 		};
 
 		this.renderRow = this.renderRow.bind(this);
 		this.handleMouseDown = this.handleMouseDown.bind(this);
 		this.handleMouseMove = this.handleMouseMove.bind(this);
 		this.handleMouseUp = this.handleMouseUp.bind(this);
+		this.handleMouseLeave = this.handleMouseLeave.bind(this);
+		this.handleMouseEnter = this.handleMouseEnter.bind(this);
 	}
 
 	renderRow(grid, rowNum) {
@@ -85,6 +86,19 @@ export default class DrawingGrid extends React.Component {
 		});
 	}
 
+	handleMouseLeave() {
+		if(!this.props.lineToolActive || !this.props.mouseHeld) return;
+		this.setState({ heldMouseMovedOutside: true });
+	}
+
+	handleMouseEnter() {
+		if(!this.props.lineToolActive) return;
+		if(this.state.heldMouseMovedOutside && !this.props.mouseHeld) {
+			this.handleMouseUp();
+			this.setState({ heldMouseMovedOutside: false });
+		}
+	}
+
 	render() {
 		const contents = this.props.grid.map((row, rowNum) => (
 			<div className="DrawingGrid__row" key={rowNum}>
@@ -92,16 +106,22 @@ export default class DrawingGrid extends React.Component {
 			</div>
 		));
 
-		const lineEnds = (
-			<React.Fragment>
-				<div className="DrawingGrid__line-cap  js-line-start" style={{top: this.state.lineStartY, left: this.state.lineStartX}} />
-				<div className="DrawingGrid__line-cap  js-line-end" style={{top: this.state.lineEndY, left: this.state.lineEndX}} />
-				<LineTo 
-					from="js-line-start" to="js-line-end" 
-					borderColor={document.documentElement.style.getPropertyValue("--fg-color")} 
-					borderWidth={2}
-				/>
-			</React.Fragment>
+		const isWidthNegative = Math.sign(this.state.lineEndX - this.state.lineStartX) === -1;
+		const isHeightNegative = Math.sign(this.state.lineEndY - this.state.lineStartY) === -1;
+		const absWidth = Math.abs(this.state.lineEndX - this.state.lineStartX) + 2;
+		const absHeight = Math.abs(this.state.lineEndY - this.state.lineStartY) + 2
+		const showLine = absWidth !== 2 || absHeight !== 2;
+
+		const line = (
+			<div 
+				className="DrawingGrid__line" 
+				style={{
+					top: this.state.lineStartY - (isHeightNegative ? absHeight: 0), 
+					left: this.state.lineStartX - (isWidthNegative ? absWidth : 0), 
+					width: Math.abs(this.state.lineEndX - this.state.lineStartX) + 2,
+					height: Math.abs(this.state.lineEndY - this.state.lineStartY) + 2
+				}} 
+			/>
 		);
 
 		return (
@@ -110,8 +130,10 @@ export default class DrawingGrid extends React.Component {
 				onMouseDown={this.handleMouseDown}
 				onMouseMove={this.handleMouseMove}
 				onMouseUp={this.handleMouseUp}
+				onMouseLeave={this.handleMouseLeave}
+				onMouseEnter={this.handleMouseEnter}
 			>
-				{this.props.lineToolActive && lineEnds}
+				{this.props.lineToolActive && showLine && line}
 				{contents}
 			</div>
 		);

@@ -30,4 +30,11 @@
 
 		position: absolute;
 	}
+
+	&__line {
+		background-color: var(--fg-color);
+		z-index: 2;
+
+		position: absolute;
+	}
 }

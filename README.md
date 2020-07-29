@@ -1,9 +1,9 @@
 # Todo
 
 ## Bug Fixes
-- Is it possible for the bottom-most FG row to have any gaps?
-  - You'd probably need to weave the chain in a particular way
 - Line tool behavior is buggy if you move your mouse out of the grid while it's held down
+- Replace LineTo with your own line element to avoid out-of-date lifecycle methods
+  - Should just need a single line element instead of two points?
 
 
 ## Tools

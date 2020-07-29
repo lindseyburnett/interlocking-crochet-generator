@@ -364,10 +364,23 @@ export default class App extends React.Component {
   handleLineAction(lineStartX, lineStartY, lineEndX, lineEndY) {
     this.setState((state, props) => {
       const squareSize = this.state.settings.squareSize;
-      const startCol = Math.floor(lineStartX / squareSize);
-      const startRow = Math.floor(lineStartY / squareSize);
-      const endCol = Math.floor(lineEndX / squareSize);
-      const endRow = Math.floor(lineEndY / squareSize);
+      let startCol = Math.floor(lineStartX / squareSize);
+      let startRow = Math.floor(lineStartY / squareSize);
+      let endCol = Math.floor(lineEndX / squareSize);
+      let endRow = Math.floor(lineEndY / squareSize);
+
+      // swap the positions if the user drew bottom to top or right to left
+      // this way we only have to worry about looping in one direction
+      if(startCol > endCol) {
+        let temp = startCol;
+        startCol = endCol;
+        endCol = temp;
+      }
+      if(startRow > endRow) {
+        let temp = startRow;
+        startRow = endRow;
+        endRow = temp;
+      }
 
       const newGrid = deepClone(this.state.grid);
       if(startCol === endCol) { // vertical line
