@@ -16,7 +16,7 @@ export default function PatternDisplay(props) {
 		if(currentSide === "RS" && currentColor === "FG" && row === rows-3) {
 			if(col === cols-2) {
 				return gridValue ? 
-					"Lay the chain on top of the BG mesh, so that your turning chain will be in FRONT." :
+					"Lay the chain on top of the BG mesh, so that your turning chain will be in FRONT. " :
 					"Thread the chain front-to-back through the far-right hole of the BG mesh, so that your turning chain will be in the BACK. ";
 			} else if(col === cols-4) {
 				return `DC in the 6th ch from the hook on the ${gridValue ? "FRONT" : "BACK"} side of the BG mesh. Then: `;

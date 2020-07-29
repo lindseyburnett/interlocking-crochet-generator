@@ -6,7 +6,7 @@ import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import { isSquareDot, isSquareLine } from "../utils/square-utils";
+import { isSquareDot, isSquareLine, isSquareEdge } from "../utils/square-utils";
 import { HotKeys } from "react-hotkeys";
 
 const SETTINGS_STYLE_VARIABLES = {
@@ -362,17 +362,30 @@ export default class App extends React.Component {
 
   // this is called from DrawingGrid, unlike the other active handlers
   handleLineAction(lineStartX, lineStartY, lineEndX, lineEndY) {
-    // TODO:
-    // convert pixel coordinates to square coordinates by dividing by pixels per square in settings
-    // loop through grid between the two squares and set all valid line squares to true
+    this.setState((state, props) => {
+      const squareSize = this.state.settings.squareSize;
+      const startCol = Math.floor(lineStartX / squareSize);
+      const startRow = Math.floor(lineStartY / squareSize);
+      const endCol = Math.floor(lineEndX / squareSize);
+      const endRow = Math.floor(lineEndY / squareSize);
 
-    const squareSize = this.state.settings.squareSize;
-    const startCol = Math.floor(lineStartX / squareSize);
-    const startRow = Math.floor(lineStartY / squareSize);
-    const endCol = Math.floor(lineEndX / squareSize);
-    const endRow = Math.floor(lineEndY / squareSize);
+      const newGrid = deepClone(this.state.grid);
+      if(startCol === endCol) { // vertical line
+        for(let i = startRow; i <= endRow; i++) {
+          if(isSquareLine(i, startCol) && !isSquareEdge(i, startCol, newGrid)) {
+            newGrid[i][startCol] = true;
+          }
+        }
+      } else if(startRow === endRow) { // horizontal line
+        for(let i = startCol; i <= endCol; i++) {
+          if(isSquareLine(startRow, i) && !isSquareEdge(startRow, i, newGrid)) {
+            newGrid[startRow][i] = true;
+          }
+        }
+      }
 
-    console.log(startCol, startRow, endCol, endRow);
+      return { grid: newGrid };
+    });
   }
 
   handleSquareInteract(row, col, isValid) {

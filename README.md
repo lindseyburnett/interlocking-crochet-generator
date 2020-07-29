@@ -1,20 +1,15 @@
 # Todo
 
 ## Bug Fixes
-(none atm)
+- Is it possible for the bottom-most FG row to have any gaps?
+  - You'd probably need to weave the chain in a particular way
+- Line tool behavior is buggy if you move your mouse out of the grid while it's held down
 
 
 ## Tools
 
 ### Must have
-- Draw line
-  - Start with a temporary Canvas and overlay a line
-  - Line overlay rendered should only be completely horiz or completely vert
-  - Once they mouseup, calculate the start and end of the overlay, and then loop through the row/col to draw it
-    - If you can get the pixels, you can divide that by the square size setting to get squares
-  - If possible, shift key down switches you to it, and shift key up takes you back to where you were
-    - (Careful of bugs with letting go of shift while mouse is still down)
-    - react-hotkeys should have a way to restrict hotkey to just keydown
+(none atm)
 
 ### Nice to have
 - Print
@@ -42,7 +37,8 @@
 - Warning for IE and older browsers
   - CSS vars are IE-incompatible, so this def won't work there
 - Test other major browsers (especially Mac Safari)
-- Styling for smaller resolutions (ideally should be at least usable on mobile, even if it's a little shitty)
+- Styling/functionality for smaller resolutions (ideally should be at least usable on mobile, even if it's a little shitty)
+  - Test out all the tools
 - Make border thicker every 10 squares
   - Maybe use outline so it doesn't make the squares any wider?
 - "About" modal with contact email for bug reports etc.
