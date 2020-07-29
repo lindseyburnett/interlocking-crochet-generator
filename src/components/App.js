@@ -305,7 +305,7 @@ export default class App extends React.Component {
           rows: state.settings.rows,
           cols: state.settings.cols
         });
-        if(history.length > 10) history.shift();
+        if(history.length > 20) history.shift();
         return { 
           history: history,
           currentHistoryIndex: history.length-1
@@ -455,7 +455,7 @@ export default class App extends React.Component {
                 <Tab>Settings</Tab>
               </TabList>
               <TabPanel>
-                <PatternDisplay />
+                <PatternDisplay grid={this.state.grid} />
               </TabPanel>
               <TabPanel>
                 <SettingsForm
