@@ -3,6 +3,7 @@ import "./DrawingGrid.scss";
 import DrawingGridSquare from "./DrawingGridSquare";
 import {isSquareEdge} from "../utils/square-utils";
 import LineTo from "react-lineto";
+import { getPatternRow } from "../utils/pattern-utils";
 
 export default class DrawingGrid extends React.Component {
 	constructor(props) {
@@ -118,18 +119,27 @@ export default class DrawingGrid extends React.Component {
 			</React.Fragment>
 		);
 
+		const rowNums = [];
+		for(let i = getPatternRow(0, this.props.grid.length); i > 0; i--) {
+			rowNums.push(<span key={i}>{i}</span>);
+		}
+
 		return (
-			<div 
-				className={`DrawingGrid ${!this.props.showGrid ? "DrawingGrid--no-grid" : ""}`}
-				onMouseDown={this.handleMouseDown}
-				onMouseMove={this.handleMouseMove}
-				onMouseUp={this.handleMouseUp}
-				onMouseLeave={this.handleMouseLeave}
-				onMouseEnter={this.handleMouseEnter}
-			>
-				{this.props.lineToolActive && lineEnds}
-				{contents}
-			</div>
+			<React.Fragment>
+				<div 
+					className={`DrawingGrid ${!this.props.showGrid ? "DrawingGrid--no-grid" : ""} ${this.props.showRowNums ? "DrawingGrid--has-nums" : ""}`}
+					onMouseDown={this.handleMouseDown}
+					onMouseMove={this.handleMouseMove}
+					onMouseUp={this.handleMouseUp}
+					onMouseLeave={this.handleMouseLeave}
+					onMouseEnter={this.handleMouseEnter}
+				>
+					{this.props.lineToolActive && lineEnds}
+					{contents}
+				</div>
+				{this.props.showRowNums && <div className={`DrawingGrid__row-nums ${this.props.truncateRowNums ? "DrawingGrid__row-nums--truncated" : ""}`}>{rowNums}</div>}
+				{this.props.showRowNums && <div className={`DrawingGrid__row-nums  DrawingGrid__row-nums--left ${this.props.truncateRowNums ? "DrawingGrid__row-nums--truncated" : ""}`}>{rowNums}</div>}
+			</React.Fragment>
 		);
 	}
 }

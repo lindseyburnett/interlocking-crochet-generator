@@ -51,7 +51,8 @@ export default class App extends React.Component {
         showGrid: false,
         bgColor: "#FFFFFF",
         fgColor: "#707070",
-        squareSize: 18
+        squareSize: 18,
+        showRowNums: true
       }
     };
 
@@ -547,10 +548,12 @@ export default class App extends React.Component {
                 grid={this.state.grid}
                 showDetailedView={this.state.settings.showDetailedView}
                 showGrid={this.state.settings.showGrid}
+                showRowNums={this.state.settings.showRowNums}
                 handleSquareInteract={this.handleSquareInteract}
                 mouseHeld={this.state.mouseHeld}
                 lineToolActive={this.state.activeTool === "Line"}
                 handleLineAction={this.handleLineAction}
+                truncateRowNums={this.state.settings.squareSize < 15}
               />
             </div>
             <div className="App__col">

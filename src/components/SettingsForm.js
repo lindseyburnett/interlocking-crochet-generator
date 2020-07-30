@@ -71,6 +71,7 @@ export default function SettingsForm(props) {
 						/>
 					</div>
 					<div className="SettingsForm__row">
+						<SettingsField name="showRowNums" label="Row Labels" fieldProps={{ type: "checkbox" }} />
 						<SettingsField name="showDetailedView" label="Detailed View" fieldProps={{ type: "checkbox" }} />
 						<SettingsField name="showGrid" label="Grid" fieldProps={{ type: "checkbox" }} />
 					</div>

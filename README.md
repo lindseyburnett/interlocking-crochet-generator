@@ -1,15 +1,13 @@
 # Todo
 
 ## Bug Fixes
-- Line tool behavior is buggy if you move your mouse out of the grid while it's held down
-- Replace LineTo with your own line element to avoid out-of-date lifecycle methods
-  - Should just need a single line element instead of two points?
+(none)
 
 
 ## Tools
 
 ### Must have
-(none atm)
+(none)
 
 ### Nice to have
 - Print
@@ -21,15 +19,14 @@
 ## Settings
 
 ### Must have
-- Toggle for row/stitch counters
-
-### Nice to have
 - Lefty flip
   - Reverse directions for all rows?
   - Also need to reverse stitch numbers (the ones on the top/bottom)
   - Some misc string stuff that needs updating too, like "thread the chain through the far-right hole"
   - Add a message to the top of the pattern as a reminder
 
+### Nice to have
+(none)
 
 ## Other Features
 
