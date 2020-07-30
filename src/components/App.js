@@ -65,6 +65,7 @@ export default class App extends React.Component {
     this.handlePassiveToolbarClick = this.handlePassiveToolbarClick.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleTouchMove = this.handleTouchMove.bind(this);
     this.updateHistoryIfNeeded = this.updateHistoryIfNeeded.bind(this);
     this.handleSquareInteract = this.handleSquareInteract.bind(this);
     this.handlePencilAction = this.handlePencilAction.bind(this);
@@ -264,15 +265,9 @@ export default class App extends React.Component {
               grid.push(row);
             });
 
-            // make sure all settings are present
+            // convert settings data into the form used by the app
             const settings = deepClone(dataEntries);
             delete settings.grid;
-            if(JSON.stringify(Object.keys(settings).sort()) !== JSON.stringify(Object.keys(state.settings).sort())) {
-              window.alert("Error: Save data is invalid (missing or invalid settings).");
-              return;
-            }
-
-            // convert settings data into the form used by the app
             Object.keys(settings).forEach(settingsKey => {
               const settingsValue = settings[settingsKey];
               if(parseInt(settingsValue)) settings[settingsKey] = parseInt(settingsValue);
@@ -280,10 +275,14 @@ export default class App extends React.Component {
               if(settingsValue === "true") settings[settingsKey] = true;
             });
 
+            // fold in loaded settings
+            // don't ensure all settings are present, so that settings updates don't immediately break saves from previous version
+            const newSettings = Object.assign(deepClone(state.settings), settings);
+
             // done parsing, update the app!
             // (in theory we could just not wipe the history, but this makes more sense imo)
             this.updateBulkStyleVariables(settings);
-            return { grid: grid, settings: settings, currentHistoryIndex: 0, history: [{
+            return { grid: grid, settings: newSettings, currentHistoryIndex: 0, history: [{
               grid: deepClone(grid),
               rows: settings.rows,
               cols: settings.cols
@@ -415,6 +414,17 @@ export default class App extends React.Component {
     actionFunc(row, col);
   }
 
+  // workaround for touchmove only firing from originating element
+  // pretty terrible but it'll do I guess
+  handleTouchMove(e) {
+    const touchLoc = e.changedTouches[0];
+    const targetEl = document.elementFromPoint(touchLoc.clientX, touchLoc.clientY);
+    const col = getIndexOfElementInParent(targetEl);
+    const row = getIndexOfElementInParent(targetEl.parentElement);
+    const isValid = !isSquareEdge(row, col, this.state.grid) && isSquareLine(row, col);
+    this.handleSquareInteract(row, col, isValid);
+  }
+
   handleSettingsSubmit(newValues) {
 
     // look for anything that has a handler function associated with it
@@ -531,9 +541,12 @@ export default class App extends React.Component {
       <div 
         className="App"
         onMouseDown={this.handleMouseDown}
+        onTouchStart={this.handleMouseDown}
         onMouseUp={this.handleMouseUp}
+        onTouchEnd={this.handleMouseUp}
         onMouseLeave={this.handleMouseUp}
         onClick={this.updateHistoryIfNeeded}
+        onTouchMove={this.handleTouchMove}
       >
         <HotKeys keyMap={hotkeysMap} handlers={hotkeysHandlers}>
           <Toolbar 
@@ -606,4 +619,8 @@ function initializeDots(grid, resetLines=false) {
   }
 
   return newGrid;
+}
+
+function getIndexOfElementInParent(el) {
+  return Array.prototype.indexOf.call(el.parentNode.childNodes, el);
 }

@@ -41,10 +41,11 @@ export default class DrawingGrid extends React.Component {
 
 	handleMouseDown(e) {
 		if(!this.props.lineToolActive) return;
+		const locData = e.touches ? e.touches[0] : e;
 
 		const rect = e.currentTarget.getBoundingClientRect();
-		const mouseX = e.clientX - rect.left;
-		const mouseY = e.clientY - rect.top;
+		const mouseX = locData.clientX - rect.left;
+		const mouseY = locData.clientY - rect.top;
 
 		this.setState({
 			lineStartX: mouseX,
@@ -56,10 +57,11 @@ export default class DrawingGrid extends React.Component {
 
 	handleMouseMove(e) {
 		if(!this.props.lineToolActive || !this.props.mouseHeld) return;
+		const locData = e.touches ? e.touches[0] : e;
 
 		const rect = e.currentTarget.getBoundingClientRect();
-		const mouseX = e.clientX - rect.left;
-		const mouseY = e.clientY - rect.top;
+		const mouseX = locData.clientX - rect.left;
+		const mouseY = locData.clientY - rect.top;
 
 		const rise = Math.abs(mouseY - this.state.lineStartY);
 		const run = Math.abs(mouseX - this.state.lineStartX);
@@ -129,8 +131,11 @@ export default class DrawingGrid extends React.Component {
 				<div 
 					className={`DrawingGrid ${!this.props.showGrid ? "DrawingGrid--no-grid" : ""} ${this.props.showRowNums ? "DrawingGrid--has-nums" : ""}`}
 					onMouseDown={this.handleMouseDown}
+					onTouchStart={this.handleMouseDown}
 					onMouseMove={this.handleMouseMove}
+					onTouchMove={this.handleMouseMove}
 					onMouseUp={this.handleMouseUp}
+					onTouchEnd={this.handleMouseUp}
 					onMouseLeave={this.handleMouseLeave}
 					onMouseEnter={this.handleMouseEnter}
 				>

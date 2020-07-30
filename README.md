@@ -1,20 +1,24 @@
 # Todo
 
 ## Bug Fixes
-- Change loading so if any settings are missing, it just uses the current value
-  - That way updates that add settings don't invalidate people's saves
+(none)
 
 
 ## Tools
 
 ### Must have
-(none)
+- Fill tool
+  - If they click on a non-line square, find the closest one and start there instead
+  - Recurse outwards in each of the cardinal directions, stopping at invalid, filled, or edge squares
 
 ### Nice to have
 - Print
   - Format pattern to be underneath grid
 - Export grid as image file
 - Export pattern text to file
+- Share as URL
+  - Convert save string to base 64 as URL param
+  - When the param is detected (probably when App is first mounted), pass it to the load handler
 
 
 ## Settings
@@ -28,14 +32,11 @@
 ## Other Features
 
 ### Must have
-- Warning for IE and older browsers
-  - CSS vars are IE-incompatible, so this def won't work there
-- Test other major browsers (especially Mac Safari)
 - Styling/functionality for smaller resolutions (ideally should be at least usable on mobile, even if it's a little shitty)
   - Test out all the tools
-- Make border thicker every 10 squares
-  - Maybe use outline so it doesn't make the squares any wider?
 - "About" modal with contact email for bug reports etc.
+- Add list of settings to exclude from saving, and instead store locally
+  - Pretty much all the checkboxes?
 
 ### Nice to have
 - Collapse toggle for sidebar

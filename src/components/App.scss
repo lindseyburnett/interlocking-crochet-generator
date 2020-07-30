@@ -7,6 +7,11 @@
 		display: flex;
 
 		width: 100%;
+
+		@media (max-width: 768px) {
+			align-items: flex-start;
+			flex-direction: column;
+		}
 	}
 
 	&__col {
@@ -16,7 +21,15 @@
 		position: relative;
 
 		&:first-child {
-			max-width: 50%;
+			@media (min-width: 769px) {
+				max-width: 50%;
+			}
+
+			// this fixes the grid overflow problem, but you can't scroll AND draw without scrolling 🤔
+			// @media (max-width: 768px) {
+			// 	max-width: 100vw;
+			// 	overflow-x: scroll;
+			// }
 		}
 
 		&:last-child {

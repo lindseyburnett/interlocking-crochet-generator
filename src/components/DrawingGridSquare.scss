@@ -5,6 +5,7 @@
 	cursor: var(--tool-cursor) var(--tool-cursor-x) var(--tool-cursor-y), default;
 	display: flex;
 	justify-content: center;
+	touch-action: none;
 	user-select: none;
 
 	position: relative;
