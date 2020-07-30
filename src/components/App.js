@@ -52,7 +52,8 @@ export default class App extends React.Component {
         bgColor: "#FFFFFF",
         fgColor: "#707070",
         squareSize: 18,
-        showRowNums: true
+        showRowNums: true,
+        leftHandedMode: false
       }
     };
 
@@ -563,7 +564,7 @@ export default class App extends React.Component {
                   <Tab>Settings</Tab>
                 </TabList>
                 <TabPanel>
-                  <PatternDisplay grid={this.state.grid} />
+                  <PatternDisplay grid={this.state.grid} leftHandedMode={this.state.settings.leftHandedMode} />
                 </TabPanel>
                 <TabPanel>
                   <SettingsForm

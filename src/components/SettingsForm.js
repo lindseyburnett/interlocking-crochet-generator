@@ -75,6 +75,9 @@ export default function SettingsForm(props) {
 						<SettingsField name="showDetailedView" label="Detailed View" fieldProps={{ type: "checkbox" }} />
 						<SettingsField name="showGrid" label="Grid" fieldProps={{ type: "checkbox" }} />
 					</div>
+					<div className="SettingsForm__row">
+						<SettingsField name="leftHandedMode" label="Lefty Flip" fieldProps={{ type: "checkbox" }} />
+					</div>
 
 					<button type="submit">Apply</button>
 				</Form>

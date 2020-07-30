@@ -1,7 +1,8 @@
 # Todo
 
 ## Bug Fixes
-(none)
+- Change loading so if any settings are missing, it just uses the current value
+  - That way updates that add settings don't invalidate people's saves
 
 
 ## Tools
@@ -19,11 +20,7 @@
 ## Settings
 
 ### Must have
-- Lefty flip
-  - Reverse directions for all rows?
-  - Also need to reverse stitch numbers (the ones on the top/bottom)
-  - Some misc string stuff that needs updating too, like "thread the chain through the far-right hole"
-  - Add a message to the top of the pattern as a reminder
+(none)
 
 ### Nice to have
 (none)

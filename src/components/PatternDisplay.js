@@ -15,9 +15,9 @@ export default function PatternDisplay(props) {
 		if(currentColor === "BG" && (col === 0 || col === cols-1)) return "ss";
 
 		if(currentSide === "RS" && currentColor === "FG" && row === rows-3) {
-			if(col === cols-2) {
+			if(col === (props.leftHandedMode ? 1 : cols-2)) {
 				return `The active loop of the FG chain should be on the ${gridValue ? "FRONT" : "BACK"} side of the BG mesh. `;
-			} else if(col === cols-4) {
+			} else if(col === (props.leftHandedMode ? 3 : cols-4)) {
 				return `DC in the 6th ch from the hook on the ${gridValue ? "FRONT" : "BACK"} side of the mesh. Then: `;
 			}			
 		}
@@ -34,11 +34,13 @@ export default function PatternDisplay(props) {
 	let chainSetup = `With FG, ch ${cols-2}+3. `;
 	const setupInFront = grid[rows-3][cols-2];
 	chainSetup += `Place the chain ${setupInFront ? "on top of" : "behind"} the BG mesh, so that the end closest to your hook is in the ${setupInFront ? "front" : "back"}. `;
-	chainSetup += "Going from right to left, weave the tail of the chain in and out of the ch spaces in the BG mesh, so that it lays in the front or back of the BG dcs in this order: ";
+	chainSetup += `Going from ${props.leftHandedMode ? "left to right" : "right to left"}, weave the tail of the chain in and out of the ch spaces in the BG mesh, so that it lays in the front or back of the BG dcs in this order: `;
+	
 	const chainSteps = [];
 	for(let i = cols-3; i >= 2; i -= 2) {
 		chainSteps.push(grid[rows-2][i] ? "front" : "back");
 	}
+	if(props.leftHandedMode) chainSteps.reverse();
 
 	// convert to display string
 	const repeats = parseRepeats(chainSteps);
@@ -62,9 +64,10 @@ export default function PatternDisplay(props) {
 
 		// loop through stitches for this row going from right to left, 2 stitches at a time
 		// if we're on the WS, the work is flipped over, so we go left to right then instead
+		// (and if it's left-handed, it's reversed)
 		// if it's the FG, we start and end one stitch inwards, since the outer will always be the BG's side stitch
 		const stitches = [];
-		if(currentSide === "RS") {
+		if((currentSide === "RS" && !props.leftHandedMode) || (currentSide === "WS" && props.leftHandedMode)) {
 			const start = currentColor === "BG" ? cols-1 : cols-2;
 			const end = currentColor === "BG" ? 0 : 1;
 			for(let j = start; j >= end; j -= 2) {
@@ -142,6 +145,7 @@ export default function PatternDisplay(props) {
 				</ul>
 			</div>
 			
+			{props.leftHandedMode && <em>Showing left-handed instructions.</em>}
 			<div className="PatternDisplay__step">
 				<strong>Row 0/Initial setup</strong>
 				<p>With BG, ch {cols}+3, then dc into 6th ch from hook. *Ch 1, skip ch, dc in next ch* Repeat from * to *, ending with dc in the last ch. Set aside.</p>
