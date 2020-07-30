@@ -1,5 +1,6 @@
 import React from "react";
 import "./PatternDisplay.scss";
+import { getPatternRow, getRowColor, getRowSide } from "../utils/pattern-utils";
 
 export default function PatternDisplay(props) {
 	const grid = props.grid;
@@ -34,17 +35,30 @@ export default function PatternDisplay(props) {
 	const setupInFront = grid[rows-3][cols-2];
 	chainSetup += `Place the chain ${setupInFront ? "on top of" : "behind"} the BG mesh, so that the end closest to your hook is in the ${setupInFront ? "front" : "back"}. `;
 	chainSetup += "Going from right to left, weave the tail of the chain in and out of the ch spaces in the BG mesh, so that it lays in the front or back of the BG dcs in this order: ";
+	const chainSteps = [];
 	for(let i = cols-3; i >= 2; i -= 2) {
-		const separator = i === 2 ? "." : ", ";
-		chainSetup += grid[rows-2][i] ? "front" : "back";
-		chainSetup += separator;
+		chainSteps.push(grid[rows-2][i] ? "front" : "back");
+	}
+
+	// convert to display string
+	const repeats = parseRepeats(chainSteps);
+	for(let i = 0; i < repeats.length; i++) {
+		const repeat = repeats[i];
+		if(repeat.length === 1) {
+			chainSetup += repeat[0];
+		} else {
+			chainSetup += `${repeat[0]} x ${repeat.length}`;
+		}
+
+		if(i === repeats.length-1) chainSetup += ".";
+		else chainSetup += ", ";
 	}
 
 	// continue looping through rows from bottom up
 	for(let i = rows - 3; i >= 0; i--) {
-		const currentRow = rows - 2 - i;
-		const currentColor = currentRow % 2 === 0 ? "BG" : "FG";
-		const currentSide = currentRow % 4 === 0 || currentRow % 4 === 1 ? "RS": "WS";
+		const currentRow = getPatternRow(i, rows);
+		const currentColor = getRowColor(currentRow);
+		const currentSide = getRowSide(currentRow);
 
 		// loop through stitches for this row going from right to left, 2 stitches at a time
 		// if we're on the WS, the work is flipped over, so we go left to right then instead
@@ -65,14 +79,7 @@ export default function PatternDisplay(props) {
 		}
 
 		// parse out times where the same stitch is listed multiple times in a row
-		const repeats = [];
-		for(let j = 0; j < stitches.length; j++) {
-			if(j === 0 || stitches[j] !== stitches[j-1]) {
-				repeats.push([stitches[j]]);
-			} else {
-				repeats[repeats.length-1].push(stitches[j]);
-			}
-		}
+		const repeats = parseRepeats(stitches);
 
 		// convert everything into the final string to display
 		let stepStr = "";
@@ -149,4 +156,17 @@ export default function PatternDisplay(props) {
 			))}
 		</div>
 	);
+}
+
+function parseRepeats(stitches) {
+	const repeats = [];
+	for(let j = 0; j < stitches.length; j++) {
+		if(j === 0 || stitches[j] !== stitches[j-1]) {
+			repeats.push([stitches[j]]);
+		} else {
+			repeats[repeats.length-1].push(stitches[j]);
+		}
+	}
+
+	return repeats;
 }
