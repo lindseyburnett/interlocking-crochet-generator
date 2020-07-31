@@ -511,6 +511,7 @@ export default class App extends React.Component {
       PENCIL: "q",
       ERASER: "w",
       LINE: "e",
+      FILL: "r",
       NEW: "n",
       SAVE: "s",
       LOAD: "o",
@@ -520,7 +521,7 @@ export default class App extends React.Component {
       SHIFT_LEFT: "j",
       SHIFT_DOWN: "k",
       SHIFT_RIGHT: "l",
-      RANDOM: "r"
+      RANDOM: ";"
     };
 
     const hotkeysHandlers = {

@@ -1,0 +1,13 @@
+<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" clip-rule="evenodd">
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="26" width="26" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <rect stroke="null" transform="rotate(43 5.688086032867436,18.55336189270019) " id="svg_4" height="2.831292" width="9.008271" y="17.137715" x="1.183951" fill-opacity="null" stroke-opacity="null" stroke-width="null" fill="#ffffff"/>
+  <rect stroke="null" transform="rotate(46 13.41437149047851,11.51494407653809) " id="svg_2" height="16.718399" width="9.769737" y="3.155745" x="8.529502" fill-opacity="null" stroke-opacity="null" stroke-width="null" fill="#ffffff"/>
+  <path id="svg_1" d="m5.662,23l-5.369,-5.365c-0.195,-0.195 -0.293,-0.45 -0.293,-0.707c0,-0.256 0.098,-0.512 0.293,-0.707l14.929,-14.928c0.195,-0.194 0.451,-0.293 0.707,-0.293c0.255,0 0.512,0.099 0.707,0.293l7.071,7.073c0.196,0.195 0.293,0.451 0.293,0.708c0,0.256 -0.097,0.511 -0.293,0.707l-11.216,11.219l5.514,0l0,2l-12.343,0zm3.657,-2l-5.486,-5.486l-1.419,1.414l4.076,4.072l2.829,0zm6.605,-17.581l-10.677,10.68l5.658,5.659l10.676,-10.682l-5.657,-5.657z"/>
+ </g>
+</svg>

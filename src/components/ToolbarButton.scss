@@ -1,7 +1,7 @@
 .ToolbarButton {
 	align-items: center;
 	border: 1px solid black;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
 	display: flex;
 	justify-content: center;
@@ -20,5 +20,10 @@
 
 	&--active {
 		background-color: lightgray;
+	}
+
+	img {
+		width: 75%;
+		height: auto;
 	}
 }
