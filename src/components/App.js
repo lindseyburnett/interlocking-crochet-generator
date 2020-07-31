@@ -6,7 +6,7 @@ import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import { isSquareDot, isSquareLine, isSquareEdge } from "../utils/square-utils";
+import { isSquareDot, isSquareLine, isSquareEdge, isSquareValid } from "../utils/square-utils";
 import { HotKeys } from "react-hotkeys";
 
 const SETTINGS_STYLE_VARIABLES = {
@@ -70,6 +70,7 @@ export default class App extends React.Component {
     this.handleSquareInteract = this.handleSquareInteract.bind(this);
     this.handlePencilAction = this.handlePencilAction.bind(this);
     this.handleEraserAction = this.handleEraserAction.bind(this);
+    this.handleFillAction = this.handleFillAction.bind(this);
     this.handleLineAction = this.handleLineAction.bind(this);
     this.handleSettingsSubmit = this.handleSettingsSubmit.bind(this);
     this.updateRowsCount = this.updateRowsCount.bind(this);
@@ -361,6 +362,22 @@ export default class App extends React.Component {
     });
   }
 
+  handleFillAction(row, col) {
+    this.setState((state, props) => {
+      // if they clicked an empty but invalid square, find the closest empty valid one (if one exists)
+      if(!isSquareValid(row, col, state.grid) && !state.grid[row][col]) {
+        if(isEmptyAndValid(row, col-1, state.grid)) col = col-1;
+        else if(isEmptyAndValid(row-1, col, state.grid)) row = row-1;
+        else if(isEmptyAndValid(row, col+1, state.grid)) col = col+1;
+        else if(isEmptyAndValid(row+1, col, state.grid)) row = row+1;
+        else return;
+      }
+
+      const newGrid = fillRecursively(row, col, deepClone(state.grid));
+      return { grid: newGrid };
+    });
+  }
+
   // this is called from DrawingGrid, unlike the other active handlers
   handleLineAction(lineStartX, lineStartY, lineEndX, lineEndY) {
     this.setState((state, props) => {
@@ -402,12 +419,14 @@ export default class App extends React.Component {
     });
   }
 
-  handleSquareInteract(row, col, isValid) {
-    if(!isValid) return;
+  handleSquareInteract(row, col, isValid, allowFillValidityBypass=false) {
+    // if Fill is active and allowFillValidityBypass is true, let it through
+    if(!isValid && (!this.state.activeTool === "Fill" || !allowFillValidityBypass)) return;
 
     let actionFunc = {
       Pencil: this.handlePencilAction,
       Eraser: this.handleEraserAction,
+      Fill: this.handleFillAction,
       Line: () => {} // noop; line requires special handling mostly called through DrawingGrid
     }[this.state.activeTool];
 
@@ -626,4 +645,34 @@ function initializeDots(grid, resetLines=false) {
 
 function getIndexOfElementInParent(el) {
   return Array.prototype.indexOf.call(el.parentElement.children, el);
+}
+
+const isEmptyAndValid = (row, col, grid) => {
+  return !grid[row][col] && isSquareValid(row, col, grid);
+};
+
+function fillRecursively(row, col, grid) {
+  if(!isEmptyAndValid(row, col, grid)) {
+    return grid;
+  } else {
+    grid[row][col] = true;
+
+    if(isEmptyAndValid(row-1, col-1, grid)) { // up-left
+      grid = fillRecursively(row-1, col-1, grid);
+    }
+
+    if(isEmptyAndValid(row-1, col+1, grid)) { // up-right
+      grid = fillRecursively(row-1, col+1, grid);
+    }
+
+    if(isEmptyAndValid(row+1, col+1, grid)) { // down-right
+      grid = fillRecursively(row+1, col+1, grid);
+    }
+
+    if(isEmptyAndValid(row+1, col-1, grid)) { // down-left
+      grid = fillRecursively(row+1, col-1, grid);
+    }
+
+    return grid;
+  }
 }

@@ -7,9 +7,7 @@
 ## Tools
 
 ### Must have
-- Fill tool
-  - If they click on a non-line square, find the closest one and start there instead
-  - Recurse outwards in each of the cardinal directions, stopping at invalid, filled, or edge squares
+(none)
 
 ### Nice to have
 - Print

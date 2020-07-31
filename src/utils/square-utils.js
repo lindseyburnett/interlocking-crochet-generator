@@ -22,3 +22,7 @@ export function getSquareLineDirection(row, col) {
 	if(!isSquareLine(row, col)) return null;
 	return isOdd(row) ? "horiz" : "vert";
 }
+
+export function isSquareValid(row, col, grid) {
+	return !isSquareEdge(row, col, grid) && isSquareLine(row, col);
+}

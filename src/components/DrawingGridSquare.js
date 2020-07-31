@@ -37,7 +37,7 @@ export default function DrawingGridSquare(props) {
 	return (
 		<div 
 			className={`DrawingGridSquare ${dynamicClasses}`} 
-			onClick={() => props.onInteract(props.row, props.col, isValid)}
+			onClick={() => props.onInteract(props.row, props.col, isValid, true)}
 			onMouseMove={() => props.onInteract(props.row, props.col, isValid && props.isMouseHeld)}
 		>
 			{!!contents && contents}
