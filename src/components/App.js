@@ -417,8 +417,10 @@ export default class App extends React.Component {
   // workaround for touchmove only firing from originating element
   // pretty terrible but it'll do I guess
   handleTouchMove(e) {
+    if(this.state.activeTool === "Line") return;
     const touchLoc = e.changedTouches[0];
     const targetEl = document.elementFromPoint(touchLoc.clientX, touchLoc.clientY);
+    if(!targetEl.classList.contains("DrawingGridSquare")) return;
     const col = getIndexOfElementInParent(targetEl);
     const row = getIndexOfElementInParent(targetEl.parentElement);
     const isValid = !isSquareEdge(row, col, this.state.grid) && isSquareLine(row, col);
@@ -622,5 +624,5 @@ function initializeDots(grid, resetLines=false) {
 }
 
 function getIndexOfElementInParent(el) {
-  return Array.prototype.indexOf.call(el.parentNode.childNodes, el);
+  return Array.prototype.indexOf.call(el.parentElement.children, el);
 }

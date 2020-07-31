@@ -32,8 +32,7 @@
 ## Other Features
 
 ### Must have
-- Styling/functionality for smaller resolutions (ideally should be at least usable on mobile, even if it's a little shitty)
-  - Test out all the tools
+- Test iOS Safari
 - "About" modal with contact email for bug reports etc.
 - Add list of settings to exclude from saving, and instead store locally
   - Pretty much all the checkboxes?

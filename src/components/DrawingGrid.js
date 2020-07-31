@@ -62,6 +62,7 @@ export default class DrawingGrid extends React.Component {
 		const rect = e.currentTarget.getBoundingClientRect();
 		const mouseX = locData.clientX - rect.left;
 		const mouseY = locData.clientY - rect.top;
+		if(mouseX < 0 || mouseY < 0 || mouseX > rect.width || mouseY > rect.height) return;
 
 		const rise = Math.abs(mouseY - this.state.lineStartY);
 		const run = Math.abs(mouseX - this.state.lineStartX);
@@ -117,6 +118,7 @@ export default class DrawingGrid extends React.Component {
 					from="js-line-start" to="js-line-end" 
 					borderColor={document.documentElement.style.getPropertyValue("--fg-color")} 
 					borderWidth={2}
+					className="LineTo"
 				/>
 			</React.Fragment>
 		);
@@ -139,7 +141,7 @@ export default class DrawingGrid extends React.Component {
 					onMouseLeave={this.handleMouseLeave}
 					onMouseEnter={this.handleMouseEnter}
 				>
-					{this.props.lineToolActive && lineEnds}
+					{this.props.lineToolActive && this.props.mouseHeld && lineEnds}
 					{contents}
 				</div>
 				{this.props.showRowNums && <div className={`DrawingGrid__row-nums ${this.props.truncateRowNums ? "DrawingGrid__row-nums--truncated" : ""}`}>{rowNums}</div>}
