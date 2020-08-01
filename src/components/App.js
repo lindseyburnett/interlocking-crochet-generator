@@ -5,6 +5,7 @@ import { Toolbar } from "./Toolbar";
 import DrawingGrid from "./DrawingGrid";
 import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
+import AboutModal from "./AboutModal";
 
 // package components
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
@@ -61,7 +62,8 @@ export default class App extends React.Component {
         cols: INIT_SETTINGS.cols
       }],
       currentHistoryIndex: 0,
-      settings: INIT_SETTINGS
+      settings: INIT_SETTINGS,
+      showAboutModal: false
     };
 
     // initialize default styles
@@ -81,6 +83,7 @@ export default class App extends React.Component {
     this.handleSettingsSubmit = this.handleSettingsSubmit.bind(this);
     this.updateRowsCount = this.updateRowsCount.bind(this);
     this.updateColsCount = this.updateColsCount.bind(this);
+    this.handleAboutModalCloseClick = this.handleAboutModalCloseClick.bind(this);
   }
 
   // confirm before leaving page
@@ -303,6 +306,10 @@ export default class App extends React.Component {
         }
         return { grid: newGrid };
       });
+    } else if(toolName === "Print") {
+      window.print();
+    } else if(toolName === "About") {
+      this.setState({showAboutModal: true});
     }
   }
 
@@ -502,6 +509,10 @@ export default class App extends React.Component {
     });
   }
 
+  handleAboutModalCloseClick() {
+    this.setState({showAboutModal: false});
+  }
+
   render() {
     const hotkeysMap = {};
     Object.keys(ACTIVE_TOOL_DATA).forEach(activeToolKey => {
@@ -560,9 +571,10 @@ export default class App extends React.Component {
                   <Tab>Pattern</Tab>
                   <Tab>Settings</Tab>
                 </TabList>
-                <TabPanel>
+                <TabPanel forceRender={true}>
+                  {/* Forcing this to render enables us to force-show it when printing */}
                   <PatternDisplay grid={this.state.grid} leftHandedMode={this.state.settings.leftHandedMode} />
-                </TabPanel>
+                  </TabPanel>
                 <TabPanel>
                   <SettingsForm
                     handleSubmit={this.handleSettingsSubmit}
@@ -573,6 +585,7 @@ export default class App extends React.Component {
             </div>
           </div>
         </HotKeys>
+        {this.state.showAboutModal && <AboutModal handleCloseClick={this.handleAboutModalCloseClick} />}
       </div>
     );
   }

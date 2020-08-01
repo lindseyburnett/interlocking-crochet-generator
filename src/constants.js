@@ -13,6 +13,8 @@ import randomIcon from "./images/random.svg";
 import lineIcon from "./images/line.svg";
 import lineCursor from "./images/line-cursor.svg";
 import fillIcon from "./images/fill.svg";
+import printIcon from "./images/print.svg";
+import aboutIcon from "./images/about.svg";
 
 /*
 	each top-layer object is converted to a separate row in the settings form
@@ -183,6 +185,11 @@ export const PASSIVE_TOOL_DATA = [
 			image: loadIcon,
 			hotkey: "o",
 			tooltip: "Load Pattern (O)"
+		},
+		Print: {
+			image: printIcon,
+			hotkey: "p",
+			tooltip: "Print (P)"
 		}
 	},
 	{
@@ -224,6 +231,13 @@ export const PASSIVE_TOOL_DATA = [
 			image: randomIcon,
 			hotkey: ";",
 			tooltip: "Random Pattern (;)"
+		}
+	},
+	{
+		About: {
+			image: aboutIcon,
+			hotkey: null,
+			tooltip: "About"
 		}
 	}
 ];

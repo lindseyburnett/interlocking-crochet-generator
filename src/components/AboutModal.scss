@@ -1,0 +1,50 @@
+.AboutModal {
+	z-index: 10;
+
+	position: fixed;
+	left: 0;
+	top: 0;
+
+	width: 100%;
+	height: 100%;
+
+	&__overlay {
+		background-color: rgba(0, 0, 0, 0.2);
+
+		position: absolute;
+		left: 0;
+		top: 0;
+
+		width: 100%;
+		height: 100%;
+	}
+
+	&__inner {
+		background-color: white;
+		border-radius: 5px;
+		box-shadow: 0 2px 5px 2px rgba(0, 0, 0, 0.2);
+		padding: 20px 40px;
+		text-align: center;
+
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+
+		max-width: 400px;
+	}
+
+	&__close {
+		cursor: pointer;
+		font-size: 30px;
+
+		position: absolute;
+		top: 5px;
+		right: 15px;
+	}
+
+	&__small {
+		font-size: 12px;
+		margin-top: 30px;
+	}
+}

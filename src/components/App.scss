@@ -1,5 +1,6 @@
 .App {
 	margin: 0 auto;
+	-webkit-print-color-adjust: exact;
 
 	min-height: 100vh;
 
@@ -40,5 +41,22 @@
 	// get rid of outline from HotKey component focusing
 	& > div:focus {
 		outline: none;
+	}
+
+	@media print {
+		.react-tabs__tab-list {
+			display: none;
+		}
+
+		// force pattern tab to show
+		.react-tabs__tab-panel {
+			&:first-of-type {
+				display: block;
+			}
+
+			&:last-of-type {
+				display: none;
+			}
+		}
 	}
 }
