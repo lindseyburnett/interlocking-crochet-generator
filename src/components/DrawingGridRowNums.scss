@@ -1,0 +1,32 @@
+.DrawingGridRowNums {
+	&__col {
+		display: flex;
+		flex-direction: column;
+
+		position: absolute;
+		left: calc(100% - 30px);
+		top: 0;
+
+		&--left {
+			text-align: right;
+
+			left: auto;
+			right: calc(100% - 30px);
+		}
+	}
+
+	&--truncated {
+		font-size: 12px;
+
+		span:not(:nth-last-child(3n+1)) {
+			visibility: hidden;
+		}
+	}
+
+	span {
+		display: block;
+
+		min-height: var(--square-size);
+		max-height: var(--square-size);
+	}
+}

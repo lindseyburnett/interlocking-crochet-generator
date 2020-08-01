@@ -13,6 +13,7 @@
 - Print
   - Format pattern to be underneath grid
 - Export grid as image file
+  - https://www.npmjs.com/package/html-to-image
 - Export pattern text to file
 - Share as URL
   - Convert save string to base 64 as URL param
@@ -27,6 +28,7 @@
 ### Nice to have
 (none)
 
+
 ## Other Features
 
 ### Must have
@@ -39,5 +41,3 @@
 - Collapse toggle for sidebar
 - Collapse toggle for grid
 - Visual polish on buttons (indicator for being clicked, etc.)
-- Make grid position:sticky on desktop
-- Better cursor icon for line tool

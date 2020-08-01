@@ -12,37 +12,6 @@
 		display: flex;
 	}
 
-	&__row-nums {
-		display: flex;
-		flex-direction: column;
-
-		position: absolute;
-		left: calc(100% - 30px);
-		top: 0;
-
-		span {
-			display: block;
-
-			min-height: var(--square-size);
-			max-height: var(--square-size);
-		}
-
-		&--left {
-			text-align: right;
-
-			left: auto;
-			right: calc(100% - 30px);
-		}
-
-		&--truncated {
-			font-size: 12px;
-			
-			span:not(:nth-last-child(3n+1)) {
-				visibility: hidden;
-			}
-		}
-	}
-
 	&--no-grid {
 		border-bottom: 1px solid rgba(0, 0, 0, 0.4);
 
@@ -53,23 +22,5 @@
 
 	&--has-nums {
 		margin: 0 20px;
-	}
-
-	&__line-cap {
-		// // for debugging only
-		// background-color: pink;
-		// border-radius: 10px;
-		// height: 10px;
-		// width: 10px;
-		// z-index: 2;
-
-		position: absolute;
-	}
-
-	&__line {
-		background-color: var(--fg-color);
-		z-index: 2;
-
-		position: absolute;
 	}
 }

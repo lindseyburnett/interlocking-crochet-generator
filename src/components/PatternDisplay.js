@@ -1,6 +1,6 @@
 import React from "react";
 import "./PatternDisplay.scss";
-import { getPatternRow, getRowColor, getRowSide } from "../utils/pattern-utils";
+import { getPatternRow, getRowColor, getRowSide, parseStitchRepeats } from "../utils/pattern-utils";
 
 export default function PatternDisplay(props) {
 	const grid = props.grid;
@@ -8,7 +8,6 @@ export default function PatternDisplay(props) {
 	const cols = grid[0].length;
 	const steps = [];
 
-	// need to pull this into a separate function to stay DRY, since we loop in two different directions for RS vs. WS
 	const getStitch = (row, col, currentColor, currentSide) => {
 		let gridValue = grid[row][col];
 
@@ -43,7 +42,7 @@ export default function PatternDisplay(props) {
 	if(props.leftHandedMode) chainSteps.reverse();
 
 	// convert to display string
-	const repeats = parseRepeats(chainSteps);
+	const repeats = parseStitchRepeats(chainSteps);
 	for(let i = 0; i < repeats.length; i++) {
 		const repeat = repeats[i];
 		if(repeat.length === 1) {
@@ -82,7 +81,7 @@ export default function PatternDisplay(props) {
 		}
 
 		// parse out times where the same stitch is listed multiple times in a row
-		const repeats = parseRepeats(stitches);
+		const repeats = parseStitchRepeats(stitches);
 
 		// convert everything into the final string to display
 		let stepStr = "";
@@ -160,17 +159,4 @@ export default function PatternDisplay(props) {
 			))}
 		</div>
 	);
-}
-
-function parseRepeats(stitches) {
-	const repeats = [];
-	for(let j = 0; j < stitches.length; j++) {
-		if(j === 0 || stitches[j] !== stitches[j-1]) {
-			repeats.push([stitches[j]]);
-		} else {
-			repeats[repeats.length-1].push(stitches[j]);
-		}
-	}
-
-	return repeats;
 }

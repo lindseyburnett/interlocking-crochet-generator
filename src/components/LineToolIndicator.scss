@@ -1,0 +1,19 @@
+.LineToolIndicator {
+	&__cap {
+		// // for debugging only
+		// background-color: pink;
+		// border-radius: 10px;
+		// height: 10px;
+		// width: 10px;
+		// z-index: 2;
+
+		position: absolute;
+	}
+
+	&__line {
+		background-color: var(--fg-color);
+		z-index: 2;
+
+		position: absolute;
+	}
+}

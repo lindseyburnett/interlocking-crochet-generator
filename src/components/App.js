@@ -1,65 +1,72 @@
-import React from 'react';
-import './App.scss';
-import {Toolbar, TOOLBAR_DATA} from "./Toolbar";
+import React from "react";
+
+// custom components
+import { Toolbar } from "./Toolbar";
 import DrawingGrid from "./DrawingGrid";
 import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
+
+// package components
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
-import { isSquareDot, isSquareLine, isSquareEdge, isSquareValid } from "../utils/square-utils";
 import { HotKeys } from "react-hotkeys";
 
-const SETTINGS_STYLE_VARIABLES = {
-  bgColor: "--bg-color",
-  fgColor: "--fg-color",
-  squareSize: "--square-size"
-};
+// utility functions
+import { 
+  isSquareLine, 
+  isSquareEdge, 
+  isSquareValid,
+  isSquareEmptyAndValid
+} from "../utils/square-utils";
+import { initializeDots, fillRecursively } from "../utils/grid-utils";
+import { 
+  deepClone, 
+  showLoadingError, 
+  getIndexOfElementInParent,
+  updateSettingsStyleVars,
+  updateToolStyleVars
+} from "../utils/general-utils";
+import { 
+  DEFAULT_TOOL,
+  INIT_SETTINGS,
+  ACTIVE_TOOL_DATA,
+  PASSIVE_TOOL_DATA
+} from "../constants";
+
+// styles
+import "./App.scss";
+import "react-tabs/style/react-tabs.css";
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const defaultTool = "Pencil";
-    const initRows = 25;
-    const initCols = 25;
-
-    let rows = [];
-    for(let i = 0; i < initRows; i++) {
-      const newRow = Array(initCols).fill(false);
-      rows.push(newRow);
+    let grid = [];
+    for(let i = 0; i < INIT_SETTINGS.rows; i++) {
+      const newRow = Array(INIT_SETTINGS.cols).fill(false);
+      grid.push(newRow);
     }
 
-    rows = initializeDots(rows);
+    grid = initializeDots(grid);
 
     // history is kept separate from current grid since drawing a line requires several updates to
     // grid state in a row, but we only want one entry in the history
     // (if you only drew one pixel at a time, grid could be replaced with the most recent history entry)
     this.state = {
-      activeTool: defaultTool,
+      activeTool: DEFAULT_TOOL,
       mouseHeld: false,
-      grid: rows,
+      grid: grid,
       history: [{
-        grid: deepClone(rows),
-        rows: initRows,
-        cols: initCols
+        grid: deepClone(grid),
+        rows: INIT_SETTINGS.rows,
+        cols: INIT_SETTINGS.cols
       }],
       currentHistoryIndex: 0,
-      settings: {
-        rows: initRows,
-        cols: initCols,
-        showDetailedView: false,
-        showGrid: false,
-        bgColor: "#FFFFFF",
-        fgColor: "#707070",
-        squareSize: 18,
-        showRowNums: true,
-        leftHandedMode: false
-      }
+      settings: INIT_SETTINGS
     };
 
     // initialize default styles
-    this.updateToolStyles(TOOLBAR_DATA[defaultTool]);
-    this.updateBulkStyleVariables(this.state.settings);
+    updateToolStyleVars(ACTIVE_TOOL_DATA[DEFAULT_TOOL]);
+    updateSettingsStyleVars(this.state.settings);
 
     this.handleActiveToolbarClick = this.handleActiveToolbarClick.bind(this);
     this.handlePassiveToolbarClick = this.handlePassiveToolbarClick.bind(this);
@@ -68,13 +75,18 @@ export default class App extends React.Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.updateHistoryIfNeeded = this.updateHistoryIfNeeded.bind(this);
     this.handleSquareInteract = this.handleSquareInteract.bind(this);
-    this.handlePencilAction = this.handlePencilAction.bind(this);
-    this.handleEraserAction = this.handleEraserAction.bind(this);
+    this.handleDrawingAction = this.handleDrawingAction.bind(this);
     this.handleFillAction = this.handleFillAction.bind(this);
     this.handleLineAction = this.handleLineAction.bind(this);
     this.handleSettingsSubmit = this.handleSettingsSubmit.bind(this);
     this.updateRowsCount = this.updateRowsCount.bind(this);
     this.updateColsCount = this.updateColsCount.bind(this);
+  }
+
+  // confirm before leaving page
+  handleBeforeUnload(e) {
+    e.preventDefault();
+    e.returnValue = true;
   }
 
   componentDidMount() {
@@ -85,21 +97,9 @@ export default class App extends React.Component {
     window.removeEventListener("beforeunload", this.handleBeforeUnload);
   }
 
-  handleBeforeUnload(e) {
-    e.preventDefault();
-    e.returnValue = true;
-  }
-
-  updateToolStyles(toolData) {
-    const doc = document.documentElement;
-    doc.style.setProperty("--tool-cursor", `url(${toolData.cursorImage})`);
-    doc.style.setProperty("--tool-cursor-x", toolData.cursorX);
-    doc.style.setProperty("--tool-cursor-y", toolData.cursorY);
-  }
-
   handleActiveToolbarClick(toolName) {
     this.setState({ activeTool: toolName });
-    this.updateToolStyles(TOOLBAR_DATA[toolName]);
+    updateToolStyleVars(ACTIVE_TOOL_DATA[toolName]);
   }
 
   handlePassiveToolbarClick(toolName) {
@@ -236,25 +236,17 @@ export default class App extends React.Component {
               dataEntries[entryParts[0]] = entryParts[1];
             });
 
-            if(isInvalid) {
-              window.alert("Error: Save data is invalid (data is malformed).");
-              return;
-            }
-
-            if(!dataEntries.grid || !dataEntries.rows || !dataEntries.cols) {
-              window.alert("Error: Save data is invalid (missing grid info).");
-              return;
-            }
+            if(isInvalid) return showLoadingError("data isn't formatted correctly");
+            if(!dataEntries.grid || !dataEntries.rows || !dataEntries.cols) 
+              return showLoadingError("missing grid data");
 
             const gridData = dataEntries.grid.split(",");
             const rows = parseInt(dataEntries.rows);
             const cols = parseInt(dataEntries.cols);
 
             // make sure the grid data has the right dimensions
-            if(!rows || !cols || gridData.length !== rows || gridData[0].length !== cols) {
-              window.alert("Error: Save data is invalid (grid info is malformed).");
-              return;
-            }
+            if(!rows || !cols || gridData.length !== rows || gridData[0].length !== cols) 
+              return showLoadingError("grid data is inconsistent");
 
             // convert grid data into the form used by the app
             const grid = [];
@@ -277,12 +269,12 @@ export default class App extends React.Component {
             });
 
             // fold in loaded settings
-            // don't ensure all settings are present, so that settings updates don't immediately break saves from previous version
+            // don't ensure all settings are present, for backwards compat
             const newSettings = Object.assign(deepClone(state.settings), settings);
 
             // done parsing, update the app!
             // (in theory we could just not wipe the history, but this makes more sense imo)
-            this.updateBulkStyleVariables(settings);
+            updateSettingsStyleVars(settings);
             return { grid: grid, settings: newSettings, currentHistoryIndex: 0, history: [{
               grid: deepClone(grid),
               rows: settings.rows,
@@ -290,8 +282,9 @@ export default class App extends React.Component {
             }]};
           });
         }
-        reader.readAsText(file);
 
+        // actually read the uploaded file
+        reader.readAsText(file);
         temp.remove();
       });
 
@@ -327,9 +320,7 @@ export default class App extends React.Component {
       const history = deepClone(state.history).slice(0, state.currentHistoryIndex+1);
       const latestHistory = history[history.length-1].grid;
 
-      if(JSON.stringify(currentGrid) === JSON.stringify(latestHistory)) {
-        return {};
-      } else {
+      if(JSON.stringify(currentGrid) !== JSON.stringify(latestHistory)) {
         history.push({
           grid: currentGrid,
           rows: state.settings.rows,
@@ -340,25 +331,15 @@ export default class App extends React.Component {
           history: history,
           currentHistoryIndex: history.length-1
         };
-      }      
+      }   
     });
   }
 
-  handlePencilAction(row, col) {
+  handleDrawingAction(row, col, newVal) {
     this.setState((state, props) => {
       const newGrid = deepClone(state.grid);
-      newGrid[row][col] = true;
-
-      return { grid: newGrid };
-    });
-  }
-
-  handleEraserAction(row, col) {
-    this.setState((state, props) => {
-      const newGrid = deepClone(state.grid);
-      newGrid[row][col] = false;
-
-      return { grid: newGrid };
+      newGrid[row][col] = newVal;
+      return { grid: newGrid};
     });
   }
 
@@ -366,10 +347,10 @@ export default class App extends React.Component {
     this.setState((state, props) => {
       // if they clicked an empty but invalid square, find the closest empty valid one (if one exists)
       if(!isSquareValid(row, col, state.grid) && !state.grid[row][col]) {
-        if(isEmptyAndValid(row, col-1, state.grid)) col = col-1;
-        else if(isEmptyAndValid(row-1, col, state.grid)) row = row-1;
-        else if(isEmptyAndValid(row, col+1, state.grid)) col = col+1;
-        else if(isEmptyAndValid(row+1, col, state.grid)) row = row+1;
+        if(isSquareEmptyAndValid(row, col-1, state.grid)) col = col-1;
+        else if(isSquareEmptyAndValid(row-1, col, state.grid)) row = row-1;
+        else if(isSquareEmptyAndValid(row, col+1, state.grid)) col = col+1;
+        else if(isSquareEmptyAndValid(row+1, col, state.grid)) row = row+1;
         else return;
       }
 
@@ -378,9 +359,12 @@ export default class App extends React.Component {
     });
   }
 
-  // this is called from DrawingGrid, unlike the other active handlers
+  // this is passed to DrawingGrid as a prop and called from there,
+  // instead of from handleSquareInteract like the other active tools
+  // since DrawingGrid is what knows about the positions of the line the user drew
   handleLineAction(lineStartX, lineStartY, lineEndX, lineEndY) {
     this.setState((state, props) => {
+      // convert pixel amounts to grid coordinates
       const squareSize = this.state.settings.squareSize;
       let startCol = Math.floor(lineStartX / squareSize);
       let startRow = Math.floor(lineStartY / squareSize);
@@ -419,35 +403,43 @@ export default class App extends React.Component {
     });
   }
 
+  // fill tool can click on invalid squares, but only sometimes (on clicks, not mousemoves)
+  // allowFillValidityBypass lets DrawingGrid flag that condition
   handleSquareInteract(row, col, isValid, allowFillValidityBypass=false) {
-    // if Fill is active and allowFillValidityBypass is true, let it through
-    if(!isValid && (!this.state.activeTool === "Fill" || !allowFillValidityBypass)) return;
-
-    let actionFunc = {
-      Pencil: this.handlePencilAction,
-      Eraser: this.handleEraserAction,
-      Fill: this.handleFillAction,
-      Line: () => {} // noop; line requires special handling mostly called through DrawingGrid
-    }[this.state.activeTool];
-
-    actionFunc(row, col);
+    if(isValid || (this.state.activeTool === "Fill" && allowFillValidityBypass)) {
+      const active = this.state.activeTool;
+      if(active === "Pencil") {
+        this.handleDrawingAction(row, col, true);
+      } else if(active === "Eraser") {
+        this.handleDrawingAction(row, col, false);
+      } else if(active === "Fill") {
+        this.handleFillAction(row, col);
+      }
+    }
   }
 
-  // workaround for touchmove only firing from originating element
-  // pretty terrible but it'll do I guess
+  // workaround for touchmove only firing from originating element,
+  // meaning you basically can't draw by just dragging your finger
+  // basically get the touched square indirectly instead of from the event's target
   handleTouchMove(e) {
-    if(this.state.activeTool === "Line") return;
+    if(this.state.activeTool === "Line") return; // Line's touchmove stuff is handled in DrawingGrid
+    
+    // find the square the user is currently touching
+    // the DOM element, not the component
     const touchLoc = e.changedTouches[0];
     const targetEl = document.elementFromPoint(touchLoc.clientX, touchLoc.clientY);
     if(!targetEl.classList.contains("DrawingGridSquare")) return;
+
+    // figure out the details we would have if it were the component
     const col = getIndexOfElementInParent(targetEl);
     const row = getIndexOfElementInParent(targetEl.parentElement);
     const isValid = !isSquareEdge(row, col, this.state.grid) && isSquareLine(row, col);
+
+    // hand off to the usual active tool handler
     this.handleSquareInteract(row, col, isValid);
   }
 
   handleSettingsSubmit(newValues) {
-
     // look for anything that has a handler function associated with it
     Object.keys(newValues).forEach(settingName => {
       const settingValue = newValues[settingName];
@@ -462,10 +454,10 @@ export default class App extends React.Component {
     });
 
     // update style variables as needed
-    this.updateBulkStyleVariables(newValues);
+    updateSettingsStyleVars(newValues);
 
-    // once that's done, update everything in the state
-    // this both handles things that don't need a handler function, and preserves the current values in the form
+    // update everything in the state, then add a log in the history if the grid changed
+    // lets you undo changing the grid size, in case you just shrank to 5 rows and lost all your work
     this.setState({ settings: newValues }, this.updateHistoryIfNeeded);
   }
 
@@ -497,7 +489,6 @@ export default class App extends React.Component {
           let rowDelta = delta;
           while(rowDelta-- > 0) { row.push(false); }
         }
-
         newGrid = initializeDots(newGrid);
       } else if(delta < 0) {
         for(let i = 0; i < newGrid.length; i++) {
@@ -511,53 +502,24 @@ export default class App extends React.Component {
     });
   }
 
-  updateStyleVariable(varName, newValue) {
-    document.documentElement.style.setProperty(varName, newValue);
-  }
-
-  updateBulkStyleVariables(settings) {
-    Object.keys(settings).forEach(settingsKey => {
-      const styleVariable = SETTINGS_STYLE_VARIABLES[settingsKey];
-      if(styleVariable) {
-        const settingsValue = settingsKey === "squareSize" ? settings[settingsKey] + "px" : settings[settingsKey];
-        this.updateStyleVariable(styleVariable, settingsValue);
-      }
-    })
-  }
-
   render() {
-    const hotkeysMap = {
-      PENCIL: "q",
-      ERASER: "w",
-      LINE: "e",
-      FILL: "r",
-      NEW: "n",
-      SAVE: "s",
-      LOAD: "o",
-      UNDO: ["ctrl+z", "z"],
-      REDO: ["ctrl+y", "y"],
-      SHIFT_UP: "i",
-      SHIFT_LEFT: "j",
-      SHIFT_DOWN: "k",
-      SHIFT_RIGHT: "l",
-      RANDOM: ";"
-    };
+    const hotkeysMap = {};
+    Object.keys(ACTIVE_TOOL_DATA).forEach(activeToolKey => {
+      hotkeysMap[activeToolKey] = ACTIVE_TOOL_DATA[activeToolKey].hotkey;
+    });
+    PASSIVE_TOOL_DATA.forEach(passiveToolSection => {
+      Object.keys(passiveToolSection).forEach(passiveToolKey => {
+        hotkeysMap[passiveToolKey] = passiveToolSection[passiveToolKey].hotkey;
+      });
+    });
 
-    const hotkeysHandlers = {
-      PENCIL: () => this.handleActiveToolbarClick("Pencil"),
-      ERASER: () => this.handleActiveToolbarClick("Eraser"),
-      LINE: () => this.handleActiveToolbarClick("Line"),
-      NEW: () => this.handlePassiveToolbarClick("New"),
-      SAVE: () => this.handlePassiveToolbarClick("Save"),
-      LOAD: () => this.handlePassiveToolbarClick("Load"),
-      UNDO: () => this.handlePassiveToolbarClick("Undo"),
-      REDO: () => this.handlePassiveToolbarClick("Redo"),
-      SHIFT_UP: () => this.handlePassiveToolbarClick("ShiftUp"),
-      SHIFT_LEFT: () => this.handlePassiveToolbarClick("ShiftLeft"),
-      SHIFT_DOWN: () => this.handlePassiveToolbarClick("ShiftDown"),
-      SHIFT_RIGHT: () => this.handlePassiveToolbarClick("ShiftRight"),
-      RANDOM: () => this.handlePassiveToolbarClick("Random")
-    };
+    const hotkeysHandlers = {};
+    Object.keys(hotkeysMap).forEach(toolKey => {
+      const isActive = !!ACTIVE_TOOL_DATA[toolKey];
+      hotkeysHandlers[toolKey] = isActive ?
+        () => this.handleActiveToolbarClick(toolKey) :
+        () => this.handlePassiveToolbarClick(toolKey);
+    });
 
     return (
       <div 
@@ -613,66 +575,5 @@ export default class App extends React.Component {
         </HotKeys>
       </div>
     );
-  }
-}
-
-function deepClone(arr) {
-  return JSON.parse(JSON.stringify(arr));
-}
-
-// returns a new grid with dots set to true
-// does not alter the original grid
-// if resetLines is true, will wipe everything else, basically resetting to a blank state
-function initializeDots(grid, resetLines=false) {
-  const newGrid = deepClone(grid);
-
-  if(resetLines) {
-    for(let i = 0; i < grid.length; i++) {
-      for(let j = 0; j < grid[i].length; j++) {
-        newGrid[i][j] = isSquareDot(i, j);
-      }
-    }
-  } else {
-    for(let i = 1; i < grid.length; i += 2) {
-      for(let j = 1; j < grid[i].length; j+= 2) {
-        newGrid[i][j] = true;
-      }
-    }
-  }
-
-  return newGrid;
-}
-
-function getIndexOfElementInParent(el) {
-  return Array.prototype.indexOf.call(el.parentElement.children, el);
-}
-
-const isEmptyAndValid = (row, col, grid) => {
-  return !grid[row][col] && isSquareValid(row, col, grid);
-};
-
-function fillRecursively(row, col, grid) {
-  if(!isEmptyAndValid(row, col, grid)) {
-    return grid;
-  } else {
-    grid[row][col] = true;
-
-    if(isEmptyAndValid(row-1, col-1, grid)) { // up-left
-      grid = fillRecursively(row-1, col-1, grid);
-    }
-
-    if(isEmptyAndValid(row-1, col+1, grid)) { // up-right
-      grid = fillRecursively(row-1, col+1, grid);
-    }
-
-    if(isEmptyAndValid(row+1, col+1, grid)) { // down-right
-      grid = fillRecursively(row+1, col+1, grid);
-    }
-
-    if(isEmptyAndValid(row+1, col-1, grid)) { // down-left
-      grid = fillRecursively(row+1, col-1, grid);
-    }
-
-    return grid;
   }
 }

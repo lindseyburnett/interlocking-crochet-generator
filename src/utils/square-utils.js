@@ -26,3 +26,7 @@ export function getSquareLineDirection(row, col) {
 export function isSquareValid(row, col, grid) {
 	return !isSquareEdge(row, col, grid) && isSquareLine(row, col);
 }
+
+export function isSquareEmptyAndValid(row, col, grid) {
+  return !grid[row][col] && isSquareValid(row, col, grid);
+};

@@ -1,9 +1,12 @@
 import React from "react";
-import "./DrawingGrid.scss";
 import DrawingGridSquare from "./DrawingGridSquare";
-import {isSquareEdge} from "../utils/square-utils";
-import LineTo from "react-lineto";
+import LineToolIndicator from "./LineToolIndicator";
+import DrawingGridRowNums from "./DrawingGridRowNums";
+
+import { isSquareEdge } from "../utils/square-utils";
 import { getPatternRow } from "../utils/pattern-utils";
+
+import "./DrawingGrid.scss";
 
 export default class DrawingGrid extends React.Component {
 	constructor(props) {
@@ -39,10 +42,13 @@ export default class DrawingGrid extends React.Component {
 		));
 	}
 
+	// only used by Line tool, to set start position
+	// note that doing this in the grid instead of the App auto-restrains clicks to inside the grid
 	handleMouseDown(e) {
 		if(!this.props.lineToolActive) return;
 		const locData = e.touches ? e.touches[0] : e;
 
+		// find pixel location of mouse relative to grid
 		const rect = e.currentTarget.getBoundingClientRect();
 		const mouseX = locData.clientX - rect.left;
 		const mouseY = locData.clientY - rect.top;
@@ -55,15 +61,21 @@ export default class DrawingGrid extends React.Component {
 		});
 	}
 
+	// only used by Line tool, to line up end position with mouse
 	handleMouseMove(e) {
 		if(!this.props.lineToolActive || !this.props.mouseHeld) return;
 		const locData = e.touches ? e.touches[0] : e;
 
+		// find pixel location of mouse relative to grid
 		const rect = e.currentTarget.getBoundingClientRect();
 		const mouseX = locData.clientX - rect.left;
 		const mouseY = locData.clientY - rect.top;
+
+		// really only needed on mobile, since mousemove events already only fire inside the grid
+		// also helps with an occasional mouse bug where precise drawing lets you get a pixel outside
 		if(mouseX < 0 || mouseY < 0 || mouseX > rect.width || mouseY > rect.height) return;
 
+		// restrict the end of the line to a cardinal direction relative to the start
 		const rise = Math.abs(mouseY - this.state.lineStartY);
 		const run = Math.abs(mouseX - this.state.lineStartX);
 		const isVertical = rise > run;
@@ -76,12 +88,15 @@ export default class DrawingGrid extends React.Component {
 		});
 	}
 
+	// only used by the Line tool, to signal that the user has finished drawing the line
+	// handleLineAction comes from the App
 	handleMouseUp() {
 		if(!this.props.lineToolActive) return;
 
 		const s = this.state;
 		this.props.handleLineAction(s.lineStartX, s.lineStartY, s.lineEndX, s.lineEndY);
 
+		// reset position so there's not a phantom line in the grid
 		this.setState({
 			lineStartX: 0,
 			lineStartY: 0,
@@ -90,11 +105,18 @@ export default class DrawingGrid extends React.Component {
 		});
 	}
 
+	// signals the user clicked in the grid, then moved the mouse outside with it still held down
 	handleMouseLeave() {
-		if(!this.props.lineToolActive || !this.props.mouseHeld) return;
-		this.setState({ heldMouseMovedOutside: true });
+		if(this.props.lineToolActive && this.props.mouseHeld) {
+			this.setState({ heldMouseMovedOutside: true });
+		}		
 	}
 
+	// works in combo with the above to get out of the glitchy state that edge case causes
+	// we can't "hear" mouseups outside the grid, but mouseHeld comes from App so it's global
+	// so if heldMouseMovedOutside is true and mouseHeld is false, the user did the above thing,
+	// then let go of the button while outside the grid, and then moved back in
+	// just force the line to draw from its last known location
 	handleMouseEnter() {
 		if(!this.props.lineToolActive) return;
 		if(this.state.heldMouseMovedOutside && !this.props.mouseHeld) {
@@ -110,22 +132,9 @@ export default class DrawingGrid extends React.Component {
 			</div>
 		));
 
-		const lineEnds = (
-			<React.Fragment>
-				<div className="DrawingGrid__line-cap  js-line-start" style={{top: this.state.lineStartY, left: this.state.lineStartX}} />
-				<div className="DrawingGrid__line-cap  js-line-end" style={{top: this.state.lineEndY, left: this.state.lineEndX}} />
-				<LineTo 
-					from="js-line-start" to="js-line-end" 
-					borderColor={document.documentElement.style.getPropertyValue("--fg-color")} 
-					borderWidth={2}
-					className="LineTo"
-				/>
-			</React.Fragment>
-		);
-
 		const rowNums = [];
 		for(let i = getPatternRow(0, this.props.grid.length); i > 0; i--) {
-			rowNums.push(<span key={i}>{i}</span>);
+			rowNums.push(i);
 		}
 
 		return (
@@ -141,11 +150,18 @@ export default class DrawingGrid extends React.Component {
 					onMouseLeave={this.handleMouseLeave}
 					onMouseEnter={this.handleMouseEnter}
 				>
-					{this.props.lineToolActive && this.props.mouseHeld && lineEnds}
+					{this.props.lineToolActive && this.props.mouseHeld && <LineToolIndicator
+						lineStartX={this.state.lineStartX}
+						lineStartY={this.state.lineStartY}
+						lineEndX={this.state.lineEndX}
+						lineEndY={this.state.lineEndY}
+					/>}
 					{contents}
 				</div>
-				{this.props.showRowNums && <div className={`DrawingGrid__row-nums ${this.props.truncateRowNums ? "DrawingGrid__row-nums--truncated" : ""}`}>{rowNums}</div>}
-				{this.props.showRowNums && <div className={`DrawingGrid__row-nums  DrawingGrid__row-nums--left ${this.props.truncateRowNums ? "DrawingGrid__row-nums--truncated" : ""}`}>{rowNums}</div>}
+				{this.props.showRowNums && <DrawingGridRowNums
+					truncated={this.props.truncateRowNums}
+					nums={rowNums}
+				/>}
 			</React.Fragment>
 		);
 	}

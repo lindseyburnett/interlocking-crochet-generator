@@ -1,7 +1,8 @@
 import React from "react";
-import "./SettingsForm.scss";
 import { Formik, Form, useFormikContext } from "formik";
 import SettingsField from "./SettingsField";
+import {SETTINGS_DATA} from "../constants";
+import "./SettingsForm.scss";
 
 function ColorSwitchButton(props) {
 	const {values, setFieldValue} = useFormikContext();
@@ -17,68 +18,49 @@ function handleColorSwitchClick(bg, fg, setFieldValue) {
 }
 
 export default function SettingsForm(props) {
+	const settingsRows = SETTINGS_DATA.map((dataRow, i) => (
+		<div className="SettingsForm__row" key={i}>
+			{Object.keys(dataRow).map(settingKey => {
+				const settingData = dataRow[settingKey];
+				if(settingData.customComponent && settingData.customComponent === "ColorSwitchButton") {
+					return <ColorSwitchButton key={settingKey} />
+				} else {
+					return (
+						<SettingsField 
+							name={settingKey} 
+							key={settingKey} 
+							label={settingData.label} 
+							fieldProps={settingData.fieldProps} 
+						/>
+					)
+				}
+			})}
+		</div>
+	));
+
 	return (
 		<div className="SettingsForm">
 			<Formik
 				initialValues={props.settings}
 				validate={values => {
 					const errors = {};
-					const rows = parseInt(values.rows);
-					const cols = parseInt(values.cols);
-					const squareSize = parseInt(values.squareSize);
-
-					if(rows < 5) errors.rows = "Must be at least 5";
-					else if(rows > 99) errors.rows = "Must be less than 100";
-					else if(rows % 2 === 0) errors.rows = "Must be odd";
-
-					if(cols < 5) errors.cols = "Must be at least 5";
-					else if(cols > 99) errors.cols = "Must be 99 or less";
-					else if(cols % 2 === 0) errors.cols = "Must be odd";
-
-					if(squareSize < 6) errors.squareSize = "Must be at least 6";
-					else if(squareSize > 50) errors.squareSize = "Must be 50 or less";
+					Object.keys(values).forEach(settingKey => {
+						SETTINGS_DATA.forEach(dataRow => {
+							if(dataRow[settingKey] && dataRow[settingKey].validation) {
+								dataRow[settingKey].validation.forEach(validationFunc => {
+									const error = validationFunc(values[settingKey]);
+									if(error) errors[settingKey] = error;
+								});
+							}
+						});
+					});
 
 					return errors;
 				}}
 				onSubmit={props.handleSubmit}
 			>
 				<Form>
-					<div className="SettingsForm__row">
-						<SettingsField name="bgColor" label="Background" fieldProps={{ type: "color" }} />
-						<SettingsField name="fgColor" label="Foreground" fieldProps={{ type: "color" }} />
-						<ColorSwitchButton />
-					</div>
-					<div className="SettingsForm__row">
-						<SettingsField name="rows" label="Rows" fieldProps={{
-								type: "number",
-								min: "5",
-								max: "99",
-								step: "2"
-							}}
-						/>
-						<SettingsField name="cols" label="Columns" fieldProps={{
-								type: "number",
-								min: "5",
-								max: "99",
-								step: "2"
-							}}
-						/>
-						<SettingsField name="squareSize" label="Square Size" fieldProps={{
-								type: "number",
-								min: "6",
-								max: "50"
-							}}
-						/>
-					</div>
-					<div className="SettingsForm__row">
-						<SettingsField name="showRowNums" label="Row Labels" fieldProps={{ type: "checkbox" }} />
-						<SettingsField name="showDetailedView" label="Detailed View" fieldProps={{ type: "checkbox" }} />
-						<SettingsField name="showGrid" label="Grid" fieldProps={{ type: "checkbox" }} />
-					</div>
-					<div className="SettingsForm__row">
-						<SettingsField name="leftHandedMode" label="Lefty Flip" fieldProps={{ type: "checkbox" }} />
-					</div>
-
+					{settingsRows}
 					<button type="submit">Apply</button>
 				</Form>
 			</Formik>
