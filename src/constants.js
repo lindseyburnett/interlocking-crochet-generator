@@ -24,11 +24,13 @@ import aboutIcon from "./images/about.svg";
 	if it just needs a CSS variable, add it to SETTINGS_STYLE_VARIABLES and you're done
 	otherwise, update handleSettingsSubmit in App.js
 
-	customComponent is checked within the SettingsForm's render
+	customComponent is checked within the SettingsForm's render to decide what to use for the field
 	it can basically be any string, SettingsForm will just deal with it
 
 	validation is an array of functions that take the setting value and return an error message (or null if no error)
 	the later in the list, the higher priority the error has
+
+	if storeLocally is true, setting will be saved in localStorage and excluded from save files
 */
 export const SETTINGS_DATA = [
 	{
@@ -91,21 +93,25 @@ export const SETTINGS_DATA = [
 	{
 		showRowNums: {
 			label: "Row Labels",
-			fieldProps: {type: "checkbox"}
+			fieldProps: {type: "checkbox"},
+			storeLocally: true
 		},
 		showDetailedView: {
 			label: "Detailed View",
-			fieldProps: {type: "checkbox"}
+			fieldProps: {type: "checkbox"},
+			storeLocally: true
 		},
 		showGrid: {
 			label: "Grid",
-			fieldProps: {type: "checkbox"}
+			fieldProps: {type: "checkbox"},
+			storeLocally: true
 		}
 	},
 	{
 		leftHandedMode: {
 			label: "Lefty Flip",
-			fieldProps: {type: "checkbox"}
+			fieldProps: {type: "checkbox"},
+			storeLocally: true
 		}
 	}
 ];

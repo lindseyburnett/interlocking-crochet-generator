@@ -24,13 +24,16 @@ import {
   showLoadingError, 
   getIndexOfElementInParent,
   updateSettingsStyleVars,
-  updateToolStyleVars
+  updateToolStyleVars,
+  updateLocallyStoredSettings,
+  convertSettingsValueString
 } from "../utils/general-utils";
 import { 
   DEFAULT_TOOL,
   INIT_SETTINGS,
   ACTIVE_TOOL_DATA,
-  PASSIVE_TOOL_DATA
+  PASSIVE_TOOL_DATA,
+  SETTINGS_DATA
 } from "../constants";
 
 // styles
@@ -49,6 +52,15 @@ export default class App extends React.Component {
 
     grid = initializeDots(grid);
 
+    // read in any settings values that were stored locally
+    const startingSettings = deepClone(INIT_SETTINGS);
+    Object.keys(startingSettings).forEach(settingKey => {
+      const storedSetting = localStorage.getItem(settingKey);
+      if(storedSetting) {
+        startingSettings[settingKey] = convertSettingsValueString(storedSetting);
+      }
+    });
+
     // history is kept separate from current grid since drawing a line requires several updates to
     // grid state in a row, but we only want one entry in the history
     // (if you only drew one pixel at a time, grid could be replaced with the most recent history entry)
@@ -62,7 +74,7 @@ export default class App extends React.Component {
         cols: INIT_SETTINGS.cols
       }],
       currentHistoryIndex: 0,
-      settings: INIT_SETTINGS,
+      settings: startingSettings,
       showAboutModal: false
     };
 
@@ -193,8 +205,12 @@ export default class App extends React.Component {
         if(i !== this.state.grid[i].length-1) saveStr += ",";
       }
 
-      Object.keys(this.state.settings).forEach(settingsKey => {
-        saveStr += `\n${settingsKey}:${this.state.settings[settingsKey]}`;
+      SETTINGS_DATA.forEach(settingsRow => {
+        Object.keys(settingsRow).forEach(settingKey => {
+          if(!settingsRow[settingKey].storeLocally && this.state.settings[settingKey]) {
+            saveStr += `\n${settingKey}:${this.state.settings[settingKey]}`;
+          }
+        });
       });
 
       const temp = document.createElement("a");
@@ -265,10 +281,7 @@ export default class App extends React.Component {
             const settings = deepClone(dataEntries);
             delete settings.grid;
             Object.keys(settings).forEach(settingsKey => {
-              const settingsValue = settings[settingsKey];
-              if(parseInt(settingsValue)) settings[settingsKey] = parseInt(settingsValue);
-              if(settingsValue === "false") settings[settingsKey] = false;
-              if(settingsValue === "true") settings[settingsKey] = true;
+              settings[settingsKey] = convertSettingsValueString(settings[settingsKey]);
             });
 
             // fold in loaded settings
@@ -462,6 +475,9 @@ export default class App extends React.Component {
 
     // update style variables as needed
     updateSettingsStyleVars(newValues);
+
+    // update localStorage for anything stored there
+    updateLocallyStoredSettings(newValues);
 
     // update everything in the state, then add a log in the history if the grid changed
     // lets you undo changing the grid size, in case you just shrank to 5 rows and lost all your work

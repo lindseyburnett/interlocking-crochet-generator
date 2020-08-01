@@ -31,8 +31,6 @@
 
 ### Must have
 - Test iOS Safari
-- Add list of settings to exclude from saving, and instead store locally
-  - Pretty much all the checkboxes?
 
 ### Nice to have
 - Collapse toggle for sidebar
