@@ -138,7 +138,7 @@ export default class DrawingGrid extends React.Component {
 		}
 
 		return (
-			<React.Fragment>
+			<div className="DrawingGrid__wrap">
 				<div 
 					className={`DrawingGrid ${!this.props.showGrid ? "DrawingGrid--no-grid" : ""} ${this.props.showRowNums ? "DrawingGrid--has-nums" : ""}`}
 					onMouseDown={this.handleMouseDown}
@@ -162,7 +162,7 @@ export default class DrawingGrid extends React.Component {
 					truncated={this.props.truncateRowNums}
 					nums={rowNums}
 				/>}
-			</React.Fragment>
+			</div>
 		);
 	}
 }

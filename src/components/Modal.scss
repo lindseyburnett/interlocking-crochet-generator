@@ -1,4 +1,4 @@
-.AboutModal {
+.Modal {
 	z-index: 10;
 
 	position: fixed;
@@ -43,7 +43,7 @@
 		right: 15px;
 	}
 
-	&__small {
+	&__footer {
 		font-size: 12px;
 		margin-top: 30px;
 	}

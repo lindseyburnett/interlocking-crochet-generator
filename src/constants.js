@@ -16,6 +16,8 @@ import fillIcon from "./images/fill.svg";
 import printIcon from "./images/print.svg";
 import aboutIcon from "./images/about.svg";
 
+import AboutModal from "./components/AboutModal";
+
 /*
 	each top-layer object is converted to a separate row in the settings form
 
@@ -247,3 +249,9 @@ export const PASSIVE_TOOL_DATA = [
 		}
 	}
 ];
+
+// used by ActiveModal to grab a modal to show
+// when adding a new one, update App.js to set state.activeModal to the name string from here
+export const MODAL_COMPONENTS = {
+	"AboutModal": AboutModal
+};

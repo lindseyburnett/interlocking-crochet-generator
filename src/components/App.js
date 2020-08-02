@@ -5,7 +5,7 @@ import { Toolbar } from "./Toolbar";
 import DrawingGrid from "./DrawingGrid";
 import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
-import AboutModal from "./AboutModal";
+import ActiveModal from "./ActiveModal";
 
 // package components
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
@@ -75,7 +75,7 @@ export default class App extends React.Component {
       }],
       currentHistoryIndex: 0,
       settings: startingSettings,
-      showAboutModal: false
+      activeModal: null
     };
 
     // initialize default styles
@@ -95,13 +95,15 @@ export default class App extends React.Component {
     this.handleSettingsSubmit = this.handleSettingsSubmit.bind(this);
     this.updateRowsCount = this.updateRowsCount.bind(this);
     this.updateColsCount = this.updateColsCount.bind(this);
-    this.handleAboutModalCloseClick = this.handleAboutModalCloseClick.bind(this);
+    this.handleModalCloseClick = this.handleModalCloseClick.bind(this);
   }
 
   // confirm before leaving page
   handleBeforeUnload(e) {
-    e.preventDefault();
-    e.returnValue = true;
+    if(window.location.hostname !== "localhost") {
+      e.preventDefault();
+      e.returnValue = true;
+    }
   }
 
   componentDidMount() {
@@ -322,7 +324,7 @@ export default class App extends React.Component {
     } else if(toolName === "Print") {
       window.print();
     } else if(toolName === "About") {
-      this.setState({showAboutModal: true});
+      this.setState({activeModal: "AboutModal"});
     }
   }
 
@@ -525,8 +527,8 @@ export default class App extends React.Component {
     });
   }
 
-  handleAboutModalCloseClick() {
-    this.setState({showAboutModal: false});
+  handleModalCloseClick() {
+    this.setState({activeModal: null});
   }
 
   render() {
@@ -601,7 +603,7 @@ export default class App extends React.Component {
             </div>
           </div>
         </HotKeys>
-        {this.state.showAboutModal && <AboutModal handleCloseClick={this.handleAboutModalCloseClick} />}
+        {this.state.activeModal && <ActiveModal modalName={this.state.activeModal} handleCloseClick={this.handleModalCloseClick} />}
       </div>
     );
   }
