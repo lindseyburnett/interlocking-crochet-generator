@@ -15,6 +15,7 @@ import lineCursor from "./images/line-cursor.svg";
 import fillIcon from "./images/fill.svg";
 import printIcon from "./images/print.svg";
 import aboutIcon from "./images/about.svg";
+import generateLinkIcon from "./images/generate-link.svg";
 
 import AboutModal from "./components/AboutModal";
 
@@ -25,6 +26,7 @@ import AboutModal from "./components/AboutModal";
 	if you only need it to show up in the state, just need to implement the effects of that
 	if it just needs a CSS variable, add it to SETTINGS_STYLE_VARIABLES and you're done
 	otherwise, update handleSettingsSubmit in App.js
+	if storeLocally is false, you may also need to update the compression-related consts
 
 	customComponent is checked within the SettingsForm's render to decide what to use for the field
 	it can basically be any string, SettingsForm will just deal with it
@@ -136,6 +138,16 @@ export const SETTINGS_STYLE_VARIABLES = {
   squareSize: "--square-size"
 };
 
+// https://github.com/ananthakumaran/u
+export const SETTINGS_COMPRESSION_SPEC = {
+	grid: ["varchar"],
+	bgColor: ["fixedchar", 7],
+	fgColor: ["fixedchar", 7],
+	rows: ["integer"],
+	cols: ["integer"],
+	squareSize: ["integer"]
+};
+
 export const DEFAULT_TOOL = "Pencil";
 
 // auto converted to first section in toolbar
@@ -242,6 +254,11 @@ export const PASSIVE_TOOL_DATA = [
 		}
 	},
 	{
+		GenerateLink: {
+			image: generateLinkIcon,
+			hotkey: null,
+			tooltip: "Generate Link to Pattern"
+		},
 		About: {
 			image: aboutIcon,
 			hotkey: null,
@@ -250,7 +267,7 @@ export const PASSIVE_TOOL_DATA = [
 	}
 ];
 
-// used by ActiveModal to grab a modal to show
+// used by DynamicModal to grab a modal to show
 // when adding a new one, update App.js to set state.activeModal to the name string from here
 export const MODAL_COMPONENTS = {
 	"AboutModal": AboutModal

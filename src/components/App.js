@@ -5,7 +5,7 @@ import { Toolbar } from "./Toolbar";
 import DrawingGrid from "./DrawingGrid";
 import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
-import ActiveModal from "./ActiveModal";
+import DynamicModal from "./DynamicModal";
 
 // package components
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
@@ -21,20 +21,24 @@ import {
 import { initializeDots, fillRecursively } from "../utils/grid-utils";
 import { 
   deepClone, 
-  showLoadingError, 
   getIndexOfElementInParent,
   updateSettingsStyleVars,
-  updateToolStyleVars,
-  updateLocallyStoredSettings,
-  convertSettingsValueString
+  updateToolStyleVars
 } from "../utils/general-utils";
+import {
+  updateLocallyStoredSettings,
+  convertSettingsValueString,
+  generateSaveObject,
+  showLoadingError
+} from "../utils/save-load-utils";
 import { 
   DEFAULT_TOOL,
   INIT_SETTINGS,
   ACTIVE_TOOL_DATA,
   PASSIVE_TOOL_DATA,
-  SETTINGS_DATA
+  SETTINGS_COMPRESSION_SPEC
 } from "../constants";
+import { fromJson, encode, decode } from "u-node";
 
 // styles
 import "./App.scss";
@@ -198,25 +202,9 @@ export default class App extends React.Component {
         return { grid: newGrid };
       });
     } else if(toolName === "Save") {
-      let saveStr = "grid:";
-
-      for(let i = 0; i < this.state.grid.length; i++) {
-        for(let j = 0; j < this.state.grid[i].length; j++) {
-          saveStr += this.state.grid[i][j] ? "1" : "0";
-        }
-        if(i !== this.state.grid[i].length-1) saveStr += ",";
-      }
-
-      SETTINGS_DATA.forEach(settingsRow => {
-        Object.keys(settingsRow).forEach(settingKey => {
-          if(!settingsRow[settingKey].storeLocally && this.state.settings[settingKey]) {
-            saveStr += `\n${settingKey}:${this.state.settings[settingKey]}`;
-          }
-        });
-      });
-
+      const saveObj = generateSaveObject(this.state.grid, this.state.settings);
       const temp = document.createElement("a");
-      const file = new Blob([saveStr], {type: "text/plain"});
+      const file = new Blob([JSON.stringify(saveObj)], {type: "text/plain"});
       temp.href = URL.createObjectURL(file);
       temp.download = "icg_save.icg";
       document.body.appendChild(temp); // Firefox compat
@@ -242,61 +230,46 @@ export default class App extends React.Component {
         if(!file) return; // failsafe
         const reader = new FileReader();
         reader.onload = e => {
+          let dataEntries;
+          try {
+            dataEntries = JSON.parse(e.target.result);
+          } catch(err) {
+            showLoadingError("data isn't formatted correctly", e.target.result);
+          }
+          if(!dataEntries) return;
+          if(!dataEntries.grid || !dataEntries.rows || !dataEntries.cols) return showLoadingError("missing grid data", dataEntries);
+
+          const gridData = dataEntries.grid.split(",");
+          const {rows, cols} = dataEntries;
+
+          // make sure the grid data has the right dimensions
+          if(!rows || !cols || gridData.length !== rows || gridData[0].length !== cols) return showLoadingError("grid data is inconsistent", dataEntries, gridData, rows, cols);
+
+          // convert grid data into the form used by the app
+          const grid = [];
+          gridData.forEach(rowData => {
+            const row = [];
+            rowData.split("").forEach(squareData => {
+              row.push(squareData === "1");
+            });
+            grid.push(row);
+          });
+
+          // ditch the loaded grid so only the settings remain
+          delete dataEntries.grid;
+
           this.setState((state, props) => {
-            const loadedData = e.target.result;
-
-            const dataEntries = {};
-            let isInvalid = false;
-            loadedData.split("\n").forEach(entry => {
-              const entryParts = entry.split(":");
-              if(entryParts.length !== 2) {
-                isInvalid = true;
-                return;
-              }
-
-              dataEntries[entryParts[0]] = entryParts[1];
-            });
-
-            if(isInvalid) return showLoadingError("data isn't formatted correctly");
-            if(!dataEntries.grid || !dataEntries.rows || !dataEntries.cols) 
-              return showLoadingError("missing grid data");
-
-            const gridData = dataEntries.grid.split(",");
-            const rows = parseInt(dataEntries.rows);
-            const cols = parseInt(dataEntries.cols);
-
-            // make sure the grid data has the right dimensions
-            if(!rows || !cols || gridData.length !== rows || gridData[0].length !== cols) 
-              return showLoadingError("grid data is inconsistent");
-
-            // convert grid data into the form used by the app
-            const grid = [];
-            gridData.forEach(rowData => {
-              const row = [];
-              rowData.split("").forEach(squareData => {
-                row.push(squareData === "1");
-              });
-              grid.push(row);
-            });
-
-            // convert settings data into the form used by the app
-            const settings = deepClone(dataEntries);
-            delete settings.grid;
-            Object.keys(settings).forEach(settingsKey => {
-              settings[settingsKey] = convertSettingsValueString(settings[settingsKey]);
-            });
-
             // fold in loaded settings
             // don't ensure all settings are present, for backwards compat
-            const newSettings = Object.assign(deepClone(state.settings), settings);
+            const newSettings = Object.assign(deepClone(state.settings), dataEntries);
 
             // done parsing, update the app!
             // (in theory we could just not wipe the history, but this makes more sense imo)
-            updateSettingsStyleVars(settings);
+            updateSettingsStyleVars(dataEntries);
             return { grid: grid, settings: newSettings, currentHistoryIndex: 0, history: [{
               grid: deepClone(grid),
-              rows: settings.rows,
-              cols: settings.cols
+              rows: dataEntries.rows,
+              cols: dataEntries.cols
             }]};
           });
         }
@@ -325,6 +298,10 @@ export default class App extends React.Component {
       window.print();
     } else if(toolName === "About") {
       this.setState({activeModal: "AboutModal"});
+    } else if(toolName === "GenerateLink") {
+      const encoderV1 = fromJson(1, SETTINGS_COMPRESSION_SPEC);
+      const encoded = encode(encoderV1, generateSaveObject(this.state.grid, this.state.settings));
+      console.log(encoded);
     }
   }
 
@@ -550,6 +527,11 @@ export default class App extends React.Component {
         () => this.handlePassiveToolbarClick(toolKey);
     });
 
+    const modalProps = {
+      modalName: this.state.activeModal,
+      handleCloseClick: this.handleModalCloseClick
+    };
+
     return (
       <div 
         className="App"
@@ -603,7 +585,7 @@ export default class App extends React.Component {
             </div>
           </div>
         </HotKeys>
-        {this.state.activeModal && <ActiveModal modalName={this.state.activeModal} handleCloseClick={this.handleModalCloseClick} />}
+        {this.state.activeModal && <DynamicModal {...modalProps} />}
       </div>
     );
   }

@@ -6753,6 +6753,11 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
+lodash@4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.2.1.tgz#171fdcfbbc30d689c544cd18c0529f56de6c1aa9"
+  integrity sha1-Fx/c+7ww1onFRM0YwFKfVt5sGqk=
+
 "lodash@>=3.5 <5", lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.5:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
@@ -10688,6 +10693,13 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
+
+u-node@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/u-node/-/u-node-0.0.2.tgz#683eb194b1a7a51cdd86e21e679c1720826f88d3"
+  integrity sha1-aD6xlLGnpRzdhuIeZ5wXIIJviNM=
+  dependencies:
+    lodash "4.2.1"
 
 ua-parser-js@^0.7.18:
   version "0.7.21"
