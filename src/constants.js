@@ -18,6 +18,7 @@ import aboutIcon from "./images/about.svg";
 import generateLinkIcon from "./images/generate-link.svg";
 
 import AboutModal from "./components/AboutModal";
+import ShareModal from "./components/ShareModal";
 
 /*
 	each top-layer object is converted to a separate row in the settings form
@@ -270,5 +271,6 @@ export const PASSIVE_TOOL_DATA = [
 // used by DynamicModal to grab a modal to show
 // when adding a new one, update App.js to set state.activeModal to the name string from here
 export const MODAL_COMPONENTS = {
-	"AboutModal": AboutModal
+	"AboutModal": AboutModal,
+	"ShareModal": ShareModal
 };

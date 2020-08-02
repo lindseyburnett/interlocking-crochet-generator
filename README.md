@@ -11,9 +11,11 @@
 
 ### Nice to have
 - Share as URL
-  - Convert save string to base 64 as URL param
+  - Replace #'s in colors with something else, so they don't get read as hashes in the URL
   - When the param is detected (probably when App is first mounted), pass it to the load handler
-  - Show as a modal with a copy button
+    - Break loading out into a separate function that just takes the stringified object
+    - Use u's decode function to convert param value back, then send it to said loading function
+  - Add a copy button to modal
 
 
 ## Settings

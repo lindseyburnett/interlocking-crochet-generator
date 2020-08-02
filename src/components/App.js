@@ -29,7 +29,8 @@ import {
   updateLocallyStoredSettings,
   convertSettingsValueString,
   generateSaveObject,
-  showLoadingError
+  showLoadingError,
+  convertBase64StringToGridData
 } from "../utils/save-load-utils";
 import { 
   DEFAULT_TOOL,
@@ -239,11 +240,8 @@ export default class App extends React.Component {
           if(!dataEntries) return;
           if(!dataEntries.grid || !dataEntries.rows || !dataEntries.cols) return showLoadingError("missing grid data", dataEntries);
 
-          const gridData = dataEntries.grid.split(",");
           const {rows, cols} = dataEntries;
-
-          // make sure the grid data has the right dimensions
-          if(!rows || !cols || gridData.length !== rows || gridData[0].length !== cols) return showLoadingError("grid data is inconsistent", dataEntries, gridData, rows, cols);
+          const gridData = convertBase64StringToGridData(dataEntries.grid, rows, cols);
 
           // convert grid data into the form used by the app
           const grid = [];
@@ -301,7 +299,10 @@ export default class App extends React.Component {
     } else if(toolName === "GenerateLink") {
       const encoderV1 = fromJson(1, SETTINGS_COMPRESSION_SPEC);
       const encoded = encode(encoderV1, generateSaveObject(this.state.grid, this.state.settings));
-      console.log(encoded);
+      this.setState({
+        shareLink: `http://interlocking-crochet-generator.herokuapp.com/?share=${encoded}`,
+        activeModal: "ShareModal"
+      });
     }
   }
 
@@ -531,6 +532,9 @@ export default class App extends React.Component {
       modalName: this.state.activeModal,
       handleCloseClick: this.handleModalCloseClick
     };
+    if(this.state.activeModal === "ShareModal") {
+      modalProps.shareLink = this.state.shareLink;
+    }
 
     return (
       <div 
