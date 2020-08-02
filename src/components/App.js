@@ -23,7 +23,8 @@ import {
   deepClone, 
   getIndexOfElementInParent,
   updateSettingsStyleVars,
-  updateToolStyleVars
+  updateToolStyleVars,
+  getParam
 } from "../utils/general-utils";
 import {
   updateLocallyStoredSettings,
@@ -101,6 +102,7 @@ export default class App extends React.Component {
     this.updateRowsCount = this.updateRowsCount.bind(this);
     this.updateColsCount = this.updateColsCount.bind(this);
     this.handleModalCloseClick = this.handleModalCloseClick.bind(this);
+    this.loadDataFromObject = this.loadDataFromObject.bind(this);
   }
 
   // confirm before leaving page
@@ -113,6 +115,13 @@ export default class App extends React.Component {
 
   componentDidMount() {
     window.addEventListener("beforeunload", this.handleBeforeUnload);
+
+    // if you hit a generated share link, parse and load in the pattern
+    if(window.location.search.indexOf("share=") > -1) {
+      const encoderV1 = fromJson(1, SETTINGS_COMPRESSION_SPEC);
+      const decoded = decode([encoderV1], decodeURIComponent(getParam("share")));
+      this.loadDataFromObject(decoded);
+    }
   }
 
   componentWillUnmount() {
@@ -240,36 +249,7 @@ export default class App extends React.Component {
           if(!dataEntries) return;
           if(!dataEntries.grid || !dataEntries.rows || !dataEntries.cols) return showLoadingError("missing grid data", dataEntries);
 
-          const {rows, cols} = dataEntries;
-          const gridData = convertBase64StringToGridData(dataEntries.grid, rows, cols);
-
-          // convert grid data into the form used by the app
-          const grid = [];
-          gridData.forEach(rowData => {
-            const row = [];
-            rowData.split("").forEach(squareData => {
-              row.push(squareData === "1");
-            });
-            grid.push(row);
-          });
-
-          // ditch the loaded grid so only the settings remain
-          delete dataEntries.grid;
-
-          this.setState((state, props) => {
-            // fold in loaded settings
-            // don't ensure all settings are present, for backwards compat
-            const newSettings = Object.assign(deepClone(state.settings), dataEntries);
-
-            // done parsing, update the app!
-            // (in theory we could just not wipe the history, but this makes more sense imo)
-            updateSettingsStyleVars(dataEntries);
-            return { grid: grid, settings: newSettings, currentHistoryIndex: 0, history: [{
-              grid: deepClone(grid),
-              rows: dataEntries.rows,
-              cols: dataEntries.cols
-            }]};
-          });
+          this.loadDataFromObject(dataEntries);
         }
 
         // actually read the uploaded file
@@ -298,12 +278,45 @@ export default class App extends React.Component {
       this.setState({activeModal: "AboutModal"});
     } else if(toolName === "GenerateLink") {
       const encoderV1 = fromJson(1, SETTINGS_COMPRESSION_SPEC);
-      const encoded = encode(encoderV1, generateSaveObject(this.state.grid, this.state.settings));
+      const encoded = encodeURIComponent(encode(encoderV1, generateSaveObject(this.state.grid, this.state.settings)));
       this.setState({
         shareLink: `http://interlocking-crochet-generator.herokuapp.com/?share=${encoded}`,
         activeModal: "ShareModal"
       });
     }
+  }
+
+  loadDataFromObject(dataEntries) {
+    const {rows, cols} = dataEntries;
+    const gridData = convertBase64StringToGridData(dataEntries.grid, rows, cols);
+
+    // convert grid data into the form used by the app
+    const grid = [];
+    gridData.forEach(rowData => {
+      const row = [];
+      rowData.split("").forEach(squareData => {
+        row.push(squareData === "1");
+      });
+      grid.push(row);
+    });
+
+    // ditch the loaded grid so only the settings remain
+    delete dataEntries.grid;
+
+    this.setState((state, props) => {
+      // fold in loaded settings
+      // don't ensure all settings are present, for backwards compat
+      const newSettings = Object.assign(deepClone(state.settings), dataEntries);
+
+      // done parsing, update the app!
+      // (in theory we could just not wipe the history, but this makes more sense imo)
+      updateSettingsStyleVars(dataEntries);
+      return { grid: grid, settings: newSettings, currentHistoryIndex: 0, history: [{
+        grid: deepClone(grid),
+        rows: dataEntries.rows,
+        cols: dataEntries.cols
+      }]};
+    });
   }
 
   handleMouseDown() {

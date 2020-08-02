@@ -19,6 +19,10 @@ a {
 	}
 }
 
-input {
+input[type='text'], input[type='number'] {
+	border: 1px solid black;
+	box-sizing: border-box;
 	padding: 5px;
+
+	width: 100%;
 }

@@ -24,3 +24,7 @@ export function updateToolStyleVars(toolData) {
 	doc.style.setProperty("--tool-cursor-x", toolData.cursorX);
 	doc.style.setProperty("--tool-cursor-y", toolData.cursorY);
 }
+
+export function getParam(name) {
+	return new URLSearchParams(window.location.search).get(name);
+}
