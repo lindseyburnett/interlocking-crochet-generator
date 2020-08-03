@@ -10,6 +10,10 @@
 	width: 32px;
 	height: 32px;
 
+	&:active {
+		background-color: lightgray;
+	}
+
 	&:not(:last-child) {
 		margin-right: 10px;
 	}

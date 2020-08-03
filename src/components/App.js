@@ -550,6 +550,9 @@ export default class App extends React.Component {
       });
     });
 
+    hotkeysMap.toggleLeft = "[";
+    hotkeysMap.toggleRight = "]";
+
     const hotkeysHandlers = {};
     Object.keys(hotkeysMap).forEach(toolKey => {
       const isActive = !!ACTIVE_TOOL_DATA[toolKey];
@@ -557,6 +560,10 @@ export default class App extends React.Component {
         () => this.handleActiveToolbarClick(toolKey) :
         () => this.handlePassiveToolbarClick(toolKey);
     });
+
+    // don't allow both cols to be collapsed at once
+    hotkeysHandlers.toggleLeft = () => { if(!this.state.isRightCollapsed) this.toggleLeftCol(); };
+    hotkeysHandlers.toggleRight = () => { if(!this.state.isLeftCollapsed) this.toggleRightCol(); };
 
     const modalProps = {
       modalName: this.state.activeModal,
