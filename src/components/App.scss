@@ -4,6 +4,26 @@
 
 	min-height: 100vh;
 
+	&--left-collapsed {
+		.App__col:first-child, .DoubleCollapseToggle__toggle--right {
+			display: none;
+		}
+	}
+
+	&--right-collapsed {
+		.App__col:last-child, .DoubleCollapseToggle__toggle--left {
+			display: none;
+		}
+
+		.App__col:first-child {
+			max-width: none;
+		}
+
+		.App__main {
+			justify-content: space-between;
+		}
+	}
+
 	&__main {
 		display: flex;
 
@@ -22,6 +42,8 @@
 		position: relative;
 
 		&:first-child {
+			padding-right: 8px;
+
 			@media (min-width: 769px) {
 				max-width: 50%;
 			}
@@ -35,6 +57,7 @@
 
 		&:last-child {
 			flex-grow: 1;
+			padding-left: 8px;
 		}
 	}
 

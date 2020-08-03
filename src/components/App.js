@@ -6,6 +6,7 @@ import DrawingGrid from "./DrawingGrid";
 import PatternDisplay from "./PatternDisplay";
 import SettingsForm from "./SettingsForm";
 import DynamicModal from "./DynamicModal";
+import DoubleCollapseToggle from "./DoubleCollapseToggle";
 
 // package components
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
@@ -81,7 +82,9 @@ export default class App extends React.Component {
       }],
       currentHistoryIndex: 0,
       settings: startingSettings,
-      activeModal: null
+      activeModal: null,
+      isLeftCollapsed: false,
+      isRightCollapsed: false
     };
 
     // initialize default styles
@@ -103,6 +106,8 @@ export default class App extends React.Component {
     this.updateColsCount = this.updateColsCount.bind(this);
     this.handleModalCloseClick = this.handleModalCloseClick.bind(this);
     this.loadDataFromObject = this.loadDataFromObject.bind(this);
+    this.toggleLeftCol = this.toggleLeftCol.bind(this);
+    this.toggleRightCol = this.toggleRightCol.bind(this);
   }
 
   // confirm before leaving page
@@ -522,6 +527,18 @@ export default class App extends React.Component {
     this.setState({activeModal: null});
   }
 
+  toggleLeftCol() {
+    this.setState((state, props) => ({
+      isLeftCollapsed: !state.isLeftCollapsed
+    }));
+  }
+
+  toggleRightCol() {
+    this.setState((state, props) => ({
+      isRightCollapsed: !state.isRightCollapsed
+    }));
+  }
+
   render() {
     const hotkeysMap = {};
     Object.keys(ACTIVE_TOOL_DATA).forEach(activeToolKey => {
@@ -551,7 +568,7 @@ export default class App extends React.Component {
 
     return (
       <div 
-        className="App"
+        className={`App  ${this.state.isLeftCollapsed ? "App--left-collapsed" : ""}  ${this.state.isRightCollapsed ? "App--right-collapsed" : ""}`}
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleMouseDown}
         onMouseUp={this.handleMouseUp}
@@ -582,6 +599,12 @@ export default class App extends React.Component {
                 truncateRowNums={this.state.settings.squareSize < 15}
               />
             </div>
+            <DoubleCollapseToggle
+              isLeftCollapsed={this.state.isLeftCollapsed}
+              isRightCollapsed={this.state.isRightCollapsed}
+              handleLeftBtnClick={this.toggleLeftCol}
+              handleRightBtnClick={this.toggleRightCol}
+            />
             <div className="App__col">
               <Tabs>
                 <TabList>

@@ -1,0 +1,18 @@
+.DoubleCollapseToggle {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+
+	@media (max-width: 768px) {
+		display: none;
+	}
+
+	&__toggle {
+		cursor: pointer;
+	}
+
+	img {
+		width: 21px;
+		height: auto;
+	}
+}
