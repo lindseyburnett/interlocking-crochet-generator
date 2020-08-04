@@ -558,7 +558,7 @@ export default class App extends React.Component {
       const isActive = !!ACTIVE_TOOL_DATA[toolKey];
       hotkeysHandlers[toolKey] = isActive ?
         () => this.handleActiveToolbarClick(toolKey) :
-        () => this.handlePassiveToolbarClick(toolKey);
+        () => {this.handlePassiveToolbarClick(toolKey); this.updateHistoryIfNeeded();}
     });
 
     // don't allow both cols to be collapsed at once
