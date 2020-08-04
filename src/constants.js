@@ -16,6 +16,7 @@ import fillIcon from "./images/fill.svg";
 import printIcon from "./images/print.svg";
 import aboutIcon from "./images/about.svg";
 import generateLinkIcon from "./images/generate-link.svg";
+import turnOverIcon from "./images/wrong-side.svg";
 
 import AboutModal from "./components/AboutModal";
 import ShareModal from "./components/ShareModal";
@@ -250,8 +251,13 @@ export const PASSIVE_TOOL_DATA = [
 	{
 		Random: {
 			image: randomIcon,
-			hotkey: ";",
-			tooltip: "Random Pattern (;)"
+			hotkey: null,
+			tooltip: "Random Pattern"
+		},
+		TurnOver: {
+			image: turnOverIcon,
+			hotkey: null,
+			tooltip: "Flip to Wrong Side"
 		}
 	},
 	{

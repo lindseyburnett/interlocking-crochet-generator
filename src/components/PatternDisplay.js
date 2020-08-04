@@ -60,6 +60,8 @@ export default function PatternDisplay(props) {
 		else chainSetup += ", ";
 	}
 
+	chainSetup += " (The last dc is your ss, so the chain will stop before it.)";
+
 	// continue looping through rows from bottom up
 	for(let i = rows - 3; i > 0; i--) {
 		const currentRow = getPatternRow(i, rows);
@@ -106,7 +108,7 @@ export default function PatternDisplay(props) {
 		}
 
 		if(currentColor === "FG") {
-			if(i === 2) stepStr += " Finish off FG.";
+			if(i === 2) stepStr += " Finish off FG. Turn.";
 			else if(i !== 0) stepStr += " Turn.";
 		} else if(currentColor === "BG") {
 			if(i === 1) stepStr += " Finish off BG. Weave in all ends.";

@@ -1,7 +1,7 @@
 # Todo
 
 ## Bug Fixes
-(none)
+- TurnOver tool needs to also mirror the result
 
 
 ## Tools
@@ -10,8 +10,7 @@
 (none)
 
 ### Nice to have
-- Show what wrong side looks like
-  - Just flip all the lines, but keep the dots (and edges) the same
+(none)
 
 
 ## Settings
@@ -20,14 +19,13 @@
 (none)
 
 ### Nice to have
-(none)
+- Detailed explanation flip for pattern
+  - If turned off, basically takes out all the fluff in the setup steps
 
 
 ## Other Features
 
 ### Must have
-- Test pattern generation
-  - Try all empty, all full, and hit the randomize button a few times
 - Test other browsers, once all tools/settings have been added
 	- FF, Edge
 	- Mac Safari (BS)

@@ -288,6 +288,18 @@ export default class App extends React.Component {
         shareLink: `http://interlocking-crochet-generator.herokuapp.com/?share=${encoded}`,
         activeModal: "ShareModal"
       });
+    } else if(toolName === "TurnOver") {
+      this.setState((state, props) => {
+        const newGrid = deepClone(state.grid);
+        for(let i = 1; i < newGrid.length-1; i++) {
+          for(let j = 1; j < newGrid[i].length-1; j++) {
+            if(isSquareLine(i, j)) {
+              newGrid[i][j] = !newGrid[i][j];
+            }
+          }
+        }
+        return { grid: newGrid };
+      });
     }
   }
 
