@@ -10,7 +10,8 @@
 (none)
 
 ### Nice to have
-(none)
+- Show what wrong side looks like
+  - Just flip all the lines, but keep the dots (and edges) the same
 
 
 ## Settings
