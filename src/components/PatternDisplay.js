@@ -17,11 +17,16 @@ export default function PatternDisplay(props) {
 			if(col === (props.leftHandedMode ? 1 : cols-2)) {
 				return `The active loop of the FG chain should be on the ${gridValue ? "FRONT" : "BACK"} side of the BG mesh. `;
 			} else if(col === (props.leftHandedMode ? 3 : cols-4)) {
-				return `DC in the 6th ch from the hook on the ${gridValue ? "FRONT" : "BACK"} side of the mesh. Then: `;
+				return `DC in the 6th ch from the hook on the ${gridValue ? "FRONT" : "BACK"} side of the mesh, so that your stitch ${gridValue ? "is on top of" : "goes through"} the second ch space from the ${props.leftHandedMode ? "left" : "right"}. Then: `;
 			}			
 		}
 
 		if(currentSide === "WS") gridValue = !gridValue;
+
+		if(currentColor === "FG" && (col === 1 || col === cols-2)) {
+			return gridValue ? "is-f" : "is-b";
+		}
+
 		if(currentColor === "FG") {
 			return gridValue ? "f" : "b";
 		} else {
@@ -31,7 +36,7 @@ export default function PatternDisplay(props) {
 
 	// start with the 2nd row from the bottom, which is special since you have to thread the FG chain
 	let chainSetup = `With FG, ch ${cols-2}+3. `;
-	const setupInFront = grid[rows-3][cols-2];
+	const setupInFront = props.leftHandedMode ? grid[rows-3][1] : grid[rows-3][cols-2];
 	chainSetup += `Place the chain ${setupInFront ? "on top of" : "behind"} the BG mesh, so that the end closest to your hook is in the ${setupInFront ? "front" : "back"}. `;
 	chainSetup += `Going from ${props.leftHandedMode ? "left to right" : "right to left"}, weave the tail of the chain in and out of the ch spaces in the BG mesh, so that it lays in the front or back of the BG dcs in this order: `;
 	
@@ -56,7 +61,7 @@ export default function PatternDisplay(props) {
 	}
 
 	// continue looping through rows from bottom up
-	for(let i = rows - 3; i >= 0; i--) {
+	for(let i = rows - 3; i > 0; i--) {
 		const currentRow = getPatternRow(i, rows);
 		const currentColor = getRowColor(currentRow);
 		const currentSide = getRowSide(currentRow);
@@ -94,13 +99,18 @@ export default function PatternDisplay(props) {
 			}
 
 			// don't add extra punctuation to the custom sentences shown on the first FG row
-			if(repeat[0] === "f" || repeat[0] === "b" || repeat[0] === "ss") {
+			if(repeat[0] === "f" || repeat[0] === "b" || repeat[0] === "ss" || repeat[0] === "is-f" || repeat[0] === "is-b") {
 				if(j === repeats.length-1) stepStr += ".";
 				else stepStr += ", ";
 			}
 		}
 
-		if(currentColor === "FG" && i !== 0) stepStr += " Turn.";
+		if(currentColor === "FG") {
+			if(i === 2) stepStr += " Finish off FG.";
+			else if(i !== 0) stepStr += " Turn.";
+		} else if(currentColor === "BG") {
+			if(i === 1) stepStr += " Finish off BG. Weave in all ends.";
+		}
 
 		steps.push({
 			currentRow: currentRow,
@@ -111,12 +121,12 @@ export default function PatternDisplay(props) {
 	}
 
 	// add "move FG to the back/front" info
-	for(let i = 0; i < steps.length; i++) {
+	for(let i = 0; i < steps.length-2; i++) {
 		const step = steps[i];
 		if(step.currentColor === "FG" || i === steps.length-1) { // second check should never happen but JIC
 			step.moveFGTo = null;
 		} else {
-			step.moveFGTo = steps[i+1].stepStr.charAt(0) === "f" ? "front" : "back";
+			step.moveFGTo = steps[i+1].stepStr.split(",")[0] === "is-f" ? "front" : "back";
 		}
 	}
 
@@ -140,6 +150,9 @@ export default function PatternDisplay(props) {
 					<li>f - dc stitch to the front</li>
 					<li>b - dc stitch to the back</li>
 					<li>ss - side stitch (always BG; ch 3 if at start of row, or dc if at end)</li>
+					<li>is - inside stitch (always FG; ch 3 if at start of row, or dc if at end)</li>
+					<li>is-f - inside stitch to the front</li>
+					<li>is-b - inside stitch to the back</li>
 					<li>fx3 - make 3 front stitches</li>
 				</ul>
 			</div>
@@ -149,7 +162,7 @@ export default function PatternDisplay(props) {
 				<strong>Row 0/Initial setup</strong>
 				<p>With BG, ch {cols}+3, then dc into 6th ch from hook. *Ch 1, skip ch, dc in next ch* Repeat from * to *, ending with dc in the last ch. Set aside.</p>
 				<p>{chainSetup}</p>
-				<p>From here on, always ch 1 and skip a stitch between each dc.</p>
+				<p>From here on, always ch 1 and skip a stitch between each dc. (ss's and is's count as dcs.)</p>
 			</div>
 			{steps.map(step => (
 				<div className="PatternDisplay__step" key={step.currentRow}>

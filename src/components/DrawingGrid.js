@@ -132,8 +132,8 @@ export default class DrawingGrid extends React.Component {
 			</div>
 		));
 
-		const rowNums = [];
-		for(let i = getPatternRow(0, this.props.grid.length); i > 0; i--) {
+		const rowNums = [""]; // start with an empty space since the topmost row doesn't count
+		for(let i = getPatternRow(1, this.props.grid.length); i > 0; i--) {
 			rowNums.push(i);
 		}
 
