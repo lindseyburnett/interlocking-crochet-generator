@@ -53,6 +53,10 @@
 				max-width: 50%;
 			}
 
+			@media print {
+				max-width: none !important;
+			}
+
 			// this fixes the grid overflow problem, but you can't scroll AND draw without scrolling 🤔
 			// @media (max-width: 768px) {
 			// 	max-width: 100vw;
