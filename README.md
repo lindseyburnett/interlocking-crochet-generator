@@ -1,7 +1,7 @@
 # Todo
 
 ## Bug Fixes
-- Share link copy to clipboard throws an error
+(none)
 
 
 ## Tools
@@ -25,9 +25,10 @@
 ## Other Features
 
 ### Must have
-- Make sure the TurnOver tool really is fixed (redraw the one you made)
+- One more pattern test run
+  - Use the non-detailed pattern setting
+  - Double-check the wrong side flip
 - Test other browsers, once all tools/settings have been added
-	- FF, Edge
 	- Mac Safari (BS)
 	- Android
 	- iOS Safari

@@ -33,6 +33,11 @@
 			align-items: flex-start;
 			flex-direction: column;
 		}
+
+		@media print {
+			align-items: flex-start;
+			flex-direction: column;
+		}
 	}
 
 	&__col {
