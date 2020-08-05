@@ -3,27 +3,25 @@ import "./CopyField.scss";
 import clipboardIcon from "../images/clipboard.svg";
 import checkIcon from "../images/check.svg";
 
-export default class CopyField extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = { copied: false };
+export default function CopyField(props) {
+	const [isCopied, setCopied] = React.useState(false);
+	const inputRef = React.useRef(null);
 
-		this.copyToClipboard = this.copyToClipboard.bind(this);
-	}
-	
-	copyToClipboard() {
-		window.navigator.clipboard.writeText(this.props.value);
-		this.setState({ copied: true });
-	}
+	const copyToClipboard = e => {
+		inputRef.current.select();
+		document.execCommand("copy");
+		setCopied(true);
+	};
 
-	render() {
-		return (
-			<div className="CopyField">
-				<input type="text" value={this.props.value} readOnly />
-				<button onClick={this.copyToClipboard}>
-					<img src={this.state.copied ? checkIcon : clipboardIcon} alt="copy" />
+	return (
+		<div className="CopyField">
+			<input type="text" value={props.value} readOnly />
+			{
+				document.queryCommandSupported("copy") &&
+				<button onClick={copyToClipboard}>
+					<img src={isCopied ? checkIcon : clipboardIcon} alt="copy" />
 				</button>
-			</div>
-		);
-	}
+			}
+		</div>
+	);
 }
