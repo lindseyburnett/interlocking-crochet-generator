@@ -15,9 +15,11 @@ export default function PatternDisplay(props) {
 
 		if(currentSide === "RS" && currentColor === "FG" && row === rows-3) {
 			if(col === (props.leftHandedMode ? 1 : cols-2)) {
-				return `The active loop of the FG chain should be on the ${gridValue ? "FRONT" : "BACK"} side of the BG mesh. `;
+				if(!props.showDetailedPattern) return `Start on the ${gridValue? "front" : "back"}. `;
+				else return `The active loop of the FG chain should be on the ${gridValue ? "FRONT" : "BACK"} side of the BG mesh. `;
 			} else if(col === (props.leftHandedMode ? 3 : cols-4)) {
-				return `DC in the 6th ch from the hook on the ${gridValue ? "FRONT" : "BACK"} side of the mesh, so that your stitch ${gridValue ? "is on top of" : "goes through"} the second ch space from the ${props.leftHandedMode ? "left" : "right"}. Then: `;
+				if(!props.showDetailedPattern) return `DC in the 6th ch from the hook on the ${gridValue ? "front" : "back"}, `;
+				else return `DC in the 6th ch from the hook on the ${gridValue ? "FRONT" : "BACK"} side of the mesh, so that your stitch ${gridValue ? "is on top of" : "goes through"} the second ch space from the ${props.leftHandedMode ? "left" : "right"}. Then: `;
 			}			
 		}
 
@@ -37,9 +39,14 @@ export default function PatternDisplay(props) {
 	// start with the 2nd row from the bottom, which is special since you have to thread the FG chain
 	let chainSetup = `With FG, ch ${cols-2}+3. `;
 	const setupInFront = props.leftHandedMode ? grid[rows-3][1] : grid[rows-3][cols-2];
-	chainSetup += `Place the chain ${setupInFront ? "on top of" : "behind"} the BG mesh, so that the end closest to your hook is in the ${setupInFront ? "front" : "back"}. `;
-	chainSetup += `Going from ${props.leftHandedMode ? "left to right" : "right to left"}, weave the tail of the chain in and out of the ch spaces in the BG mesh, so that it lays in the front or back of the BG dcs in this order: `;
-	
+	chainSetup += `Place the chain ${setupInFront ? "on top of" : "behind"} the BG mesh${props.showDetailedPattern ? `, so that the end closest to your hook is in the ${setupInFront ? "front" : "back"}` : ""}. `;
+
+	if(!props.showDetailedPattern) {
+		chainSetup += "Weave the chain in this order: ";
+	} else {
+		chainSetup += `Going from ${props.leftHandedMode ? "left to right" : "right to left"}, weave the tail of the chain in and out of the ch spaces in the BG mesh, so that it lays in the front or back of the BG dcs in this order: `;
+	}
+
 	const chainSteps = [];
 	for(let i = cols-3; i >= 2; i -= 2) {
 		chainSteps.push(grid[rows-2][i] ? "front" : "back");
@@ -60,7 +67,9 @@ export default function PatternDisplay(props) {
 		else chainSetup += ", ";
 	}
 
-	chainSetup += " (The last dc is your ss, so the chain will stop before it.)";
+	if(props.showDetailedPattern) {
+		chainSetup += " (The last dc is your ss, so the chain will stop before it.)";		
+	}
 
 	// continue looping through rows from bottom up
 	for(let i = rows - 3; i > 0; i--) {
@@ -162,9 +171,9 @@ export default function PatternDisplay(props) {
 			{props.leftHandedMode && <em>Showing left-handed instructions.</em>}
 			<div className="PatternDisplay__step">
 				<strong>Row 0/Initial setup</strong>
-				<p>With BG, ch {cols}+3, then dc into 6th ch from hook. *Ch 1, skip ch, dc in next ch* Repeat from * to *, ending with dc in the last ch. Set aside.</p>
+				<p>With BG, ch {cols}+3, then dc into 6th ch from hook. *Ch 1, skip ch, dc in next ch* Repeat from * to *{props.showDetailedPattern ? ", ending with dc in the last ch" : " to end"}. Set aside.</p>
 				<p>{chainSetup}</p>
-				<p>From here on, always ch 1 and skip a stitch between each dc. (ss's and is's count as dcs.)</p>
+				{props.showDetailedPattern && <p>From here on, always ch 1 and skip a stitch between each dc. (ss's and is's count as dcs.)</p>}
 			</div>
 			{steps.map(step => (
 				<div className="PatternDisplay__step" key={step.currentRow}>

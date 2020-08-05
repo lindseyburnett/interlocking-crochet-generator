@@ -297,6 +297,7 @@ export default class App extends React.Component {
               newGrid[i][j] = !newGrid[i][j];
             }
           }
+          newGrid[i].reverse();
         }
         return { grid: newGrid };
       });
@@ -632,7 +633,11 @@ export default class App extends React.Component {
                 </TabList>
                 <TabPanel forceRender={true}>
                   {/* Forcing this to render enables us to force-show it when printing */}
-                  <PatternDisplay grid={this.state.grid} leftHandedMode={this.state.settings.leftHandedMode} />
+                  <PatternDisplay 
+                    grid={this.state.grid} 
+                    leftHandedMode={this.state.settings.leftHandedMode} 
+                    showDetailedPattern={this.state.settings.showDetailedPattern}
+                  />
                   </TabPanel>
                 <TabPanel>
                   <SettingsForm

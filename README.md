@@ -1,7 +1,7 @@
 # Todo
 
 ## Bug Fixes
-- TurnOver tool needs to also mirror the result
+(none)
 
 
 ## Tools
@@ -19,13 +19,13 @@
 (none)
 
 ### Nice to have
-- Detailed explanation flip for pattern
-  - If turned off, basically takes out all the fluff in the setup steps
+(none)
 
 
 ## Other Features
 
 ### Must have
+- Make sure the TurnOver tool really is fixed (redraw the one you made)
 - Test other browsers, once all tools/settings have been added
 	- FF, Edge
 	- Mac Safari (BS)

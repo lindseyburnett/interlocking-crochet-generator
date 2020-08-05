@@ -118,6 +118,11 @@ export const SETTINGS_DATA = [
 			label: "Lefty Flip",
 			fieldProps: {type: "checkbox"},
 			storeLocally: true
+		},
+		showDetailedPattern: {
+			label: "Detailed Pattern",
+			fieldProps: {type: "checkbox"},
+			storeLocally: true
 		}
 	}
 ];
@@ -131,8 +136,9 @@ export const INIT_SETTINGS = {
 	fgColor: "#707070",
 	squareSize: 18,
 	showRowNums: true,
-	leftHandedMode: false
-}
+	leftHandedMode: false,
+	showDetailedPattern: true
+};
 
 export const SETTINGS_STYLE_VARIABLES = {
   bgColor: "--bg-color",
