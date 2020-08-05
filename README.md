@@ -1,7 +1,7 @@
 # Todo
 
 ## Bug Fixes
-(none)
+- Share link copy to clipboard throws an error
 
 
 ## Tools

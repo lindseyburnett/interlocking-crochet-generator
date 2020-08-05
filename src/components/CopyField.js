@@ -12,7 +12,7 @@ export default class CopyField extends React.Component {
 	}
 	
 	copyToClipboard() {
-		navigator.clipboard.writeText(this.props.value);
+		window.navigator.clipboard.writeText(this.props.value);
 		this.setState({ copied: true });
 	}
 
