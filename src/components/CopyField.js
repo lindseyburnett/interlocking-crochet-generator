@@ -15,7 +15,7 @@ export default function CopyField(props) {
 
 	return (
 		<div className="CopyField">
-			<input type="text" value={props.value} readOnly />
+			<input type="text" value={props.value} readOnly ref={inputRef} />
 			{
 				document.queryCommandSupported("copy") &&
 				<button onClick={copyToClipboard}>
