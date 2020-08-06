@@ -26,3 +26,12 @@ input[type='text'], input[type='number'] {
 
 	width: 100%;
 }
+
+button {
+	@media (max-width: 768px) {
+		background-color: #e6e6e6;
+		border: 1px solid black;
+		border-radius: 2px;
+		-webkit-appearance: none;
+	}
+}

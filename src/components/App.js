@@ -343,6 +343,7 @@ export default class App extends React.Component {
 
   handleMouseUp() {
     this.setState({ mouseHeld: false });
+    this.updateHistoryIfNeeded();
   }
 
   updateHistoryIfNeeded() {
