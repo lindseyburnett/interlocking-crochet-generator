@@ -1,7 +1,9 @@
 # Todo
 
 ## Bug Fixes
-(none)
+- Drawing (pencil, eraser, line) doesn't immediately update history on mobile (iOS or Android)
+- iOS zooms in on form fields -- is it possible to prevent that? Higher font size, I think it was?
+- Button height is busted on iOS (especially noticeable on share modal)
 
 
 ## Tools
