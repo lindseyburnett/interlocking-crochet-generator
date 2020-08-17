@@ -5,7 +5,7 @@ export default function AboutModal(props) {
 	return (
 		<Modal handleCloseClick={props.handleCloseClick}>
 			<h1>About ICG</h1>
-			<p>Interlocking Crochet Generator, by Mooglegirl</p>
+			<p>Interlocking Crochet Generator, by Amanda</p>
 			<p>Patterns are written assuming you know the basics of interlocking crochet, also called mosaic crochet, interlocking filet crochet, and intermeshing crochet.</p>
 			<p>
 				The starting row for the foreground color uses a long chain method, instead of two separate meshes, for maximum flexibility for the bottom rows.
